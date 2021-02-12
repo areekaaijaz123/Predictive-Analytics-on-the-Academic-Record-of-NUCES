@@ -1,0 +1,1361 @@
+---
+title: "Feature Selection"
+author: "Areeka Aijaz"
+date: "1/15/2021"
+output: html_document
+---
+
+
+```{r including external files, echo=FALSE, message=FALSE}
+library(plyr)
+library(dplyr)
+library(ggplot2)
+
+setwd("E:\\FYP\\FYP-1 (Part 2)\\Implementation")
+source("functions.R")
+
+```
+
+```{r, echo=FALSE}
+
+data <- read.csv("E:\\FYP\\FYP-1 (Part 2)\\Datasets\\Dataset.csv")
+
+# Selecting students whose Statuses are "Completed"
+
+data <- data %>% filter(STATUS == "Completed")
+
+summary(data)
+
+```
+
+## Campus vs CGPA
+
+Since there is imbalanced in no. of students, therefore selecting equal number of students randomly from each campus
+
+```{r, echo=FALSE}
+
+sample_data <- ddply(data,.(data$CAMPUS),function(x) x[sample(nrow(x),500),])
+
+campus_detail <- sample_data %>% group_by(CAMPUS) %>% summarise(Student_Count = n(), Min = round(min(CGPA), digits = 2), First_Quartile = round(summary(CGPA)[2], digits = 2),  Median = round(median(CGPA), digits = 2), Mean = round(mean(CGPA), digits = 2), Third_Quartile = round(summary(CGPA)[5], digits = 2), Max = round(max(CGPA), digits = 2))
+
+knitr::kable(campus_detail)
+
+```
+
+Now, applying ANOVA test to analyze the effect of CAMPUS on CGPA
+
+```{r}
+model <- aov(CGPA ~ CAMPUS, data = sample_data)
+summary(model)
+```
+
+## Degree Programs vs CGPA
+
+Since there is imbalanced in no. of students, therefore selecting equal number of students randomly from each program
+
+```{r, echo=FALSE}
+
+sample_data <- data %>% group_by(PROG_CODE) %>% filter(n() > 200)
+
+sample_data <- ddply(sample_data,.(sample_data$PROG_CODE),function(x) x[sample(nrow(x), 200),])
+
+program_detail <- sample_data %>% group_by(PROG_CODE) %>% summarise(Student_Count = n(), Min = round(min(CGPA), digits = 2), First_Quartile = round(summary(CGPA)[2], digits = 2),  Median = round(median(CGPA), digits = 2), Mean = round(mean(CGPA), digits = 2), Third_Quartile = round(summary(CGPA)[5], digits = 2), Max = round(max(CGPA), digits = 2))
+
+knitr::kable(program_detail)
+
+```
+
+Now, applying ANOVA test to analyze the effect of Degree Program on CGPA
+
+```{r}
+model <- aov(CGPA ~ PROG_CODE, data = sample_data)
+summary(model)
+```
+
+## Gender vs CGPA
+
+```{r, echo=FALSE}
+
+sample_data <- ddply(data,.(data$GENDER),function(x) x[sample(nrow(x), 600),])
+
+gender_detail <- sample_data %>% group_by(GENDER) %>% summarise(Student_Count = n(), Min = round(min(CGPA), digits = 2), First_Quartile = round(summary(CGPA)[2], digits = 2),  Median = round(median(CGPA), digits = 2), Mean = round(mean(CGPA), digits = 2), Third_Quartile = round(summary(CGPA)[5], digits = 2), Max = round(max(CGPA), digits = 2))
+
+knitr::kable(gender_detail)
+
+```
+
+Now, applying ANOVA test to analyze the effect of Gender on CGPA
+
+```{r}
+model <- aov(CGPA ~ GENDER, data = sample_data)
+summary(model)
+```
+
+## City vs CGPA
+
+```{r, echo=FALSE}
+
+sample_data <- data %>% group_by(CITY) %>% filter(n() > 60)
+  
+sample_data <- ddply(sample_data,.(sample_data$CITY),function(x) x[sample(nrow(x), 60),])
+
+city_detail <- sample_data %>% group_by(CITY) %>% summarise(Student_Count = n(), Min = round(min(CGPA), digits = 2), First_Quartile = round(summary(CGPA)[2], digits = 2),  Median = round(median(CGPA), digits = 2), Mean = round(mean(CGPA), digits = 2), Third_Quartile = round(summary(CGPA)[5], digits = 2), Max = round(max(CGPA), digits = 2))
+
+knitr::kable(city_detail)
+
+```
+
+Now, applying ANOVA test to analyze the effect of City on CGPA
+
+```{r}
+model <- aov(CGPA ~ CITY, data = sample_data)
+summary(model)
+```
+
+## SECONDARY vs CGPA
+
+```{r, echo=FALSE}
+
+sample_data <- ddply(data,.(data$SECONDARY),function(x) x[sample(nrow(x), 500),])
+
+sec_detail <- sample_data %>% group_by(SECONDARY) %>% summarise(Student_Count = n(), Min = round(min(CGPA), digits = 2), First_Quartile = round(summary(CGPA)[2], digits = 2),  Median = round(median(CGPA), digits = 2), Mean = round(mean(CGPA), digits = 2), Third_Quartile = round(summary(CGPA)[5], digits = 2), Max = round(max(CGPA), digits = 2))
+
+knitr::kable(sec_detail)
+
+```
+
+Now, applying ANOVA test to analyze the effect of Secondary on CGPA
+
+```{r}
+model <- aov(CGPA ~ SECONDARY, data = sample_data)
+summary(model)
+```
+
+## SCHOOL vs CGPA
+
+```{r, echo=FALSE}
+
+sample_data <- data %>% group_by(SCHOOL) %>% filter(n() > 20)
+  
+sample_data <- ddply(sample_data,.(sample_data$SCHOOL),function(x) x[sample(nrow(x), 20),])
+
+school_detail <- sample_data %>% group_by(SCHOOL) %>% summarise(Student_Count = n(), Min = round(min(CGPA), digits = 2), First_Quartile = round(summary(CGPA)[2], digits = 2),  Median = round(median(CGPA), digits = 2), Mean = round(mean(CGPA), digits = 2), Third_Quartile = round(summary(CGPA)[5], digits = 2), Max = round(max(CGPA), digits = 2))
+
+knitr::kable(school_detail)
+
+```
+
+Now, applying ANOVA test to analyze the effect of School on CGPA
+
+```{r}
+model <- aov(CGPA ~ SCHOOL, data = sample_data)
+summary(model)
+```
+
+## HIGHER SECONDARY vs CGPA
+
+```{r, echo=FALSE}
+
+sample_data <- ddply(data,.(data$HIGHER_SECONDARY),function(x) x[sample(nrow(x), 500),])
+
+sec_detail <- sample_data %>% group_by(HIGHER_SECONDARY) %>% summarise(Student_Count = n(), Min = round(min(CGPA), digits = 2), First_Quartile = round(summary(CGPA)[2], digits = 2),  Median = round(median(CGPA), digits = 2), Mean = round(mean(CGPA), digits = 2), Third_Quartile = round(summary(CGPA)[5], digits = 2), Max = round(max(CGPA), digits = 2))
+
+knitr::kable(sec_detail)
+
+```
+
+Now, applying ANOVA test to analyze the effect of Higher Secondary on CGPA
+
+```{r}
+model <- aov(CGPA ~ HIGHER_SECONDARY, data = sample_data)
+summary(model)
+```
+
+## COLLEGE vs CGPA
+
+```{r, echo=FALSE}
+
+sample_data <- data %>% group_by(COLLEGE) %>% filter(n() > 20)
+  
+sample_data <- ddply(sample_data,.(sample_data$COLLEGE),function(x) x[sample(nrow(x), 20),])
+
+college_detail <- sample_data %>% group_by(COLLEGE) %>% summarise(Student_Count = n(), Min = round(min(CGPA), digits = 2), First_Quartile = round(summary(CGPA)[2], digits = 2),  Median = round(median(CGPA), digits = 2), Mean = round(mean(CGPA), digits = 2), Third_Quartile = round(summary(CGPA)[5], digits = 2), Max = round(max(CGPA), digits = 2))
+
+knitr::kable(college_detail)
+
+```
+
+Now, applying ANOVA test to analyze the effect of College on CGPA
+
+```{r}
+model <- aov(CGPA ~ COLLEGE, data = sample_data)
+summary(model)
+```
+
+## FIRST_SEM vs CGPA
+
+```{r, echo=FALSE}
+
+sample_data <- data %>% group_by(FIRST_SEM) %>% filter(n() > 50)
+  
+sample_data <- ddply(sample_data,.(sample_data$FIRST_SEM),function(x) x[sample(nrow(x), 50),])
+
+fir_sem_detail <- sample_data %>% group_by(FIRST_SEM) %>% summarise(Student_Count = n(), Min = round(min(CGPA), digits = 2), First_Quartile = round(summary(CGPA)[2], digits = 2),  Median = round(median(CGPA), digits = 2), Mean = round(mean(CGPA), digits = 2), Third_Quartile = round(summary(CGPA)[5], digits = 2), Max = round(max(CGPA), digits = 2))
+
+knitr::kable(fir_sem_detail)
+
+```
+
+Now, applying ANOVA test to analyze the effect of First Semester on CGPA
+
+```{r}
+model <- aov(CGPA ~ FIRST_SEM, data = sample_data)
+summary(model)
+```
+
+## Effect of School  Grades on CGPA
+
+```{r, echo=FALSE}
+
+data %>% ggplot(aes(SEC_GRADE, CGPA, color = SEC_GRADE)) + geom_point(size = 0.9, alpha = 0.5, show.legend = FALSE) + theme_bw() + scale_x_continuous(limits = c(200,850)) + scale_color_gradient(low = "#0091ff", high = "#f0650e") + stat_smooth(method = "lm", size = 1, show.legend = FALSE) + ggtitle("Effect of School Grades on CGPA") + xlab("SECONDARY GRADE")
+```
+
+```{r}
+cor.test(data$SEC_GRADE, data$CGPA, method = "pearson")
+cor.test(data$SEC_GRADE, data$CGPA, method = "kendall")
+cor.test(data$SEC_GRADE, data$CGPA, method = "spearman")
+```
+
+## Effect of College Grades on CGPA
+
+```{r, echo=FALSE}
+
+data %>% ggplot(aes(HIG_SEC_GRADE, CGPA, color = HIG_SEC_GRADE)) + geom_point(size = 0.9, alpha = 0.5, show.legend = FALSE) + theme_bw() + scale_x_continuous(limits = c(200,1100)) + scale_color_gradient(low = "#0091ff", high = "#f0650e") + stat_smooth(method = "lm", size = 1, show.legend = FALSE) + ggtitle("Effect of College Grades on CGPA") + xlab("HIGHER SECONDARY GRADE")
+
+```
+
+```{r}
+cor.test(data$HIG_SEC_GRADE, data$CGPA, method = "pearson")
+cor.test(data$HIG_SEC_GRADE, data$CGPA, method = "kendall")
+cor.test(data$HIG_SEC_GRADE, data$CGPA, method = "spearman")
+```
+
+## Last Semester vs CGPA
+
+```{r, echo=FALSE}
+
+sample_data <- data %>% group_by(LAST_SEM) %>% filter(n() > 50)
+  
+sample_data <- ddply(sample_data,.(sample_data$LAST_SEM),function(x) x[sample(nrow(x), 50),])
+
+las_sem_detail <- sample_data %>% group_by(LAST_SEM) %>% summarise(Student_Count = n(), Min = round(min(CGPA), digits = 2), First_Quartile = round(summary(CGPA)[2], digits = 2),  Median = round(median(CGPA), digits = 2), Mean = round(mean(CGPA), digits = 2), Third_Quartile = round(summary(CGPA)[5], digits = 2), Max = round(max(CGPA), digits = 2))
+
+knitr::kable(las_sem_detail)
+
+```
+
+Now, applying ANOVA test to analyze the effect of Last Semester on CGPA
+
+```{r}
+model <- aov(CGPA ~ LAST_SEM, data = sample_data)
+summary(model)
+```
+
+
+## Campus-wise Feature Selection
+
+### KARACHI Campus
+
+```{r, echo=FALSE}
+KARACHI_data <- data %>% filter(grepl("KHI", CAMPUS))
+```
+
+## Degree Programs vs CGPA
+
+Since there is imbalanced in no. of students, therefore selecting equal number of students randomly from each program
+
+```{r, echo=FALSE}
+
+sample_data <- KARACHI_data %>% group_by(PROG_CODE) %>% filter(n() > 200)
+
+sample_data <- ddply(sample_data,.(sample_data$PROG_CODE),function(x) x[sample(nrow(x), 200),])
+
+program_detail <- sample_data %>% group_by(PROG_CODE) %>% summarise(Student_Count = n(), Min = round(min(CGPA), digits = 2), First_Quartile = round(summary(CGPA)[2], digits = 2),  Median = round(median(CGPA), digits = 2), Mean = round(mean(CGPA), digits = 2), Third_Quartile = round(summary(CGPA)[5], digits = 2), Max = round(max(CGPA), digits = 2))
+
+knitr::kable(program_detail)
+
+```
+
+Now, applying ANOVA test to analyze the effect of Degree Program on CGPA
+
+```{r}
+model <- aov(CGPA ~ PROG_CODE, data = sample_data)
+summary(model)
+```
+
+## Gender vs CGPA
+
+```{r, echo=FALSE}
+
+sample_data <- ddply(KARACHI_data,.(KARACHI_data$GENDER),function(x) x[sample(nrow(x), 260),])
+
+gender_detail <- sample_data %>% group_by(GENDER) %>% summarise(Student_Count = n(), Min = round(min(CGPA), digits = 2), First_Quartile = round(summary(CGPA)[2], digits = 2),  Median = round(median(CGPA), digits = 2), Mean = round(mean(CGPA), digits = 2), Third_Quartile = round(summary(CGPA)[5], digits = 2), Max = round(max(CGPA), digits = 2))
+
+knitr::kable(gender_detail)
+
+```
+
+Now, applying ANOVA test to analyze the effect of Gender on CGPA
+
+```{r}
+model <- aov(CGPA ~ GENDER, data = sample_data)
+summary(model)
+```
+
+## City vs CGPA
+
+```{r, echo=FALSE}
+
+sample_data <- KARACHI_data %>% group_by(CITY) %>% filter(n() > 40)
+  
+sample_data <- ddply(sample_data,.(sample_data$CITY),function(x) x[sample(nrow(x), 40),])
+
+city_detail <- sample_data %>% group_by(CITY) %>% summarise(Student_Count = n(), Min = round(min(CGPA), digits = 2), First_Quartile = round(summary(CGPA)[2], digits = 2),  Median = round(median(CGPA), digits = 2), Mean = round(mean(CGPA), digits = 2), Third_Quartile = round(summary(CGPA)[5], digits = 2), Max = round(max(CGPA), digits = 2))
+
+knitr::kable(city_detail)
+
+```
+
+Now, applying ANOVA test to analyze the effect of City on CGPA
+
+```{r}
+model <- aov(CGPA ~ CITY, data = sample_data)
+summary(model)
+```
+
+## SECONDARY vs CGPA
+
+```{r, echo=FALSE}
+
+sample_data <- ddply(KARACHI_data,.(KARACHI_data$SECONDARY),function(x) x[sample(nrow(x), 250),])
+
+sec_detail <- sample_data %>% group_by(SECONDARY) %>% summarise(Student_Count = n(), Min = round(min(CGPA), digits = 2), First_Quartile = round(summary(CGPA)[2], digits = 2),  Median = round(median(CGPA), digits = 2), Mean = round(mean(CGPA), digits = 2), Third_Quartile = round(summary(CGPA)[5], digits = 2), Max = round(max(CGPA), digits = 2))
+
+knitr::kable(sec_detail)
+
+```
+
+Now, applying ANOVA test to analyze the effect of Secondary on CGPA
+
+```{r}
+model <- aov(CGPA ~ SECONDARY, data = sample_data)
+summary(model)
+```
+
+## SCHOOL vs CGPA
+
+```{r, echo=FALSE}
+
+sample_data <- KARACHI_data %>% group_by(SCHOOL) %>% filter(n() > 20)
+  
+sample_data <- ddply(sample_data,.(sample_data$SCHOOL),function(x) x[sample(nrow(x), 20),])
+
+school_detail <- sample_data %>% group_by(SCHOOL) %>% summarise(Student_Count = n(), Min = round(min(CGPA), digits = 2), First_Quartile = round(summary(CGPA)[2], digits = 2),  Median = round(median(CGPA), digits = 2), Mean = round(mean(CGPA), digits = 2), Third_Quartile = round(summary(CGPA)[5], digits = 2), Max = round(max(CGPA), digits = 2))
+
+knitr::kable(school_detail)
+
+```
+
+Now, applying ANOVA test to analyze the effect of School on CGPA
+
+```{r}
+model <- aov(CGPA ~ SCHOOL, data = sample_data)
+summary(model)
+```
+
+## HIGHER SECONDARY vs CGPA
+
+```{r, echo=FALSE}
+
+sample_data <- ddply(KARACHI_data,.(KARACHI_data$HIGHER_SECONDARY),function(x) x[sample(nrow(x), 250),])
+
+sec_detail <- sample_data %>% group_by(HIGHER_SECONDARY) %>% summarise(Student_Count = n(), Min = round(min(CGPA), digits = 2), First_Quartile = round(summary(CGPA)[2], digits = 2),  Median = round(median(CGPA), digits = 2), Mean = round(mean(CGPA), digits = 2), Third_Quartile = round(summary(CGPA)[5], digits = 2), Max = round(max(CGPA), digits = 2))
+
+knitr::kable(sec_detail)
+
+```
+
+Now, applying ANOVA test to analyze the effect of Higher Secondary on CGPA
+
+```{r}
+model <- aov(CGPA ~ HIGHER_SECONDARY, data = sample_data)
+summary(model)
+```
+
+## COLLEGE vs CGPA
+
+```{r, echo=FALSE}
+
+sample_data <- KARACHI_data %>% group_by(COLLEGE) %>% filter(n() > 20)
+  
+sample_data <- ddply(sample_data,.(sample_data$COLLEGE),function(x) x[sample(nrow(x), 20),])
+
+college_detail <- sample_data %>% group_by(COLLEGE) %>% summarise(Student_Count = n(), Min = round(min(CGPA), digits = 2), First_Quartile = round(summary(CGPA)[2], digits = 2),  Median = round(median(CGPA), digits = 2), Mean = round(mean(CGPA), digits = 2), Third_Quartile = round(summary(CGPA)[5], digits = 2), Max = round(max(CGPA), digits = 2))
+
+knitr::kable(college_detail)
+
+```
+
+Now, applying ANOVA test to analyze the effect of College on CGPA
+
+```{r}
+model <- aov(CGPA ~ COLLEGE, data = sample_data)
+summary(model)
+```
+
+## FIRST_SEM vs CGPA
+
+```{r, echo=FALSE}
+
+sample_data <- KARACHI_data %>% group_by(FIRST_SEM) %>% filter(n() > 30)
+  
+sample_data <- ddply(sample_data,.(sample_data$FIRST_SEM),function(x) x[sample(nrow(x), 30),])
+
+fir_sem_detail <- sample_data %>% group_by(FIRST_SEM) %>% summarise(Student_Count = n(), Min = round(min(CGPA), digits = 2), First_Quartile = round(summary(CGPA)[2], digits = 2),  Median = round(median(CGPA), digits = 2), Mean = round(mean(CGPA), digits = 2), Third_Quartile = round(summary(CGPA)[5], digits = 2), Max = round(max(CGPA), digits = 2))
+
+knitr::kable(fir_sem_detail)
+
+```
+
+Now, applying ANOVA test to analyze the effect of First Semester on CGPA
+
+```{r}
+model <- aov(CGPA ~ FIRST_SEM, data = sample_data)
+summary(model)
+```
+
+## Effect of School  Grades on CGPA
+
+```{r, echo=FALSE}
+
+KARACHI_data %>% ggplot(aes(SEC_GRADE, CGPA, color = SEC_GRADE)) + geom_point(size = 0.9, alpha = 0.5, show.legend = FALSE) + theme_bw() + scale_x_continuous(limits = c(200,850)) + scale_color_gradient(low = "#0091ff", high = "#f0650e") + stat_smooth(method = "lm", size = 1, show.legend = FALSE) + ggtitle("Effect of School Grades on CGPA") + ylab("SECONDARY GRADE")
+```
+
+```{r}
+cor.test(KARACHI_data$SEC_GRADE, KARACHI_data$CGPA, method = "pearson")
+cor.test(KARACHI_data$SEC_GRADE, KARACHI_data$CGPA, method = "kendall")
+cor.test(KARACHI_data$SEC_GRADE, KARACHI_data$CGPA, method = "spearman")
+```
+
+## Effect of College Grades on CGPA
+
+```{r, echo=FALSE}
+
+KARACHI_data %>% ggplot(aes(HIG_SEC_GRADE, CGPA, color = HIG_SEC_GRADE)) + geom_point(size = 0.9, alpha = 0.5, show.legend = FALSE) + theme_bw() + scale_x_continuous(limits = c(200,1100)) + scale_color_gradient(low = "#0091ff", high = "#f0650e") + stat_smooth(method = "lm", size = 1, show.legend = FALSE) + ggtitle("Effect of College Grades on CGPA") + ylab("HIGHER SECONDARY GRADE")
+
+```
+
+```{r}
+cor.test(KARACHI_data$HIG_SEC_GRADE, KARACHI_data$CGPA, method = "pearson")
+cor.test(KARACHI_data$HIG_SEC_GRADE, KARACHI_data$CGPA, method = "kendall")
+cor.test(KARACHI_data$HIG_SEC_GRADE, KARACHI_data$CGPA, method = "spearman")
+```
+
+## Last Semester vs CGPA
+
+```{r, echo=FALSE}
+
+sample_data <- KARACHI_data %>% group_by(LAST_SEM) %>% filter(n() > 30)
+  
+sample_data <- ddply(sample_data,.(sample_data$LAST_SEM),function(x) x[sample(nrow(x), 30),])
+
+las_sem_detail <- sample_data %>% group_by(LAST_SEM) %>% summarise(Student_Count = n(), Min = round(min(CGPA), digits = 2), First_Quartile = round(summary(CGPA)[2], digits = 2),  Median = round(median(CGPA), digits = 2), Mean = round(mean(CGPA), digits = 2), Third_Quartile = round(summary(CGPA)[5], digits = 2), Max = round(max(CGPA), digits = 2))
+
+knitr::kable(las_sem_detail)
+
+```
+
+Now, applying ANOVA test to analyze the effect of Last Semester on CGPA
+
+```{r}
+model <- aov(CGPA ~ LAST_SEM, data = sample_data)
+summary(model)
+```
+
+### ISLAMABAD Campus
+
+```{r, echo=FALSE}
+ISLAMABAD_data <- data %>% filter(grepl("ISB", CAMPUS))
+```
+
+## Degree Programs vs CGPA
+
+Since there is imbalanced in no. of students, therefore selecting equal number of students randomly from each program
+
+```{r, echo=FALSE}
+
+sample_data <- ISLAMABAD_data %>% group_by(PROG_CODE) %>% filter(n() > 200)
+
+sample_data <- ddply(sample_data,.(sample_data$PROG_CODE),function(x) x[sample(nrow(x), 200),])
+
+program_detail <- sample_data %>% group_by(PROG_CODE) %>% summarise(Student_Count = n(), Min = round(min(CGPA), digits = 2), First_Quartile = round(summary(CGPA)[2], digits = 2),  Median = round(median(CGPA), digits = 2), Mean = round(mean(CGPA), digits = 2), Third_Quartile = round(summary(CGPA)[5], digits = 2), Max = round(max(CGPA), digits = 2))
+
+knitr::kable(program_detail)
+
+```
+
+Now, applying ANOVA test to analyze the effect of Degree Program on CGPA
+
+```{r}
+model <- aov(CGPA ~ PROG_CODE, data = sample_data)
+summary(model)
+```
+
+## Gender vs CGPA
+
+```{r, echo=FALSE}
+
+sample_data <- ddply(ISLAMABAD_data,.(ISLAMABAD_data$GENDER),function(x) x[sample(nrow(x), 650),])
+
+gender_detail <- sample_data %>% group_by(GENDER) %>% summarise(Student_Count = n(), Min = round(min(CGPA), digits = 2), First_Quartile = round(summary(CGPA)[2], digits = 2),  Median = round(median(CGPA), digits = 2), Mean = round(mean(CGPA), digits = 2), Third_Quartile = round(summary(CGPA)[5], digits = 2), Max = round(max(CGPA), digits = 2))
+
+knitr::kable(gender_detail)
+
+```
+
+Now, applying ANOVA test to analyze the effect of Gender on CGPA
+
+```{r}
+model <- aov(CGPA ~ GENDER, data = sample_data)
+summary(model)
+```
+
+## City vs CGPA
+
+```{r, echo=FALSE}
+
+sample_data <- ISLAMABAD_data %>% group_by(CITY) %>% filter(n() > 40)
+  
+sample_data <- ddply(sample_data,.(sample_data$CITY),function(x) x[sample(nrow(x), 40),])
+
+city_detail <- sample_data %>% group_by(CITY) %>% summarise(Student_Count = n(), Min = round(min(CGPA), digits = 2), First_Quartile = round(summary(CGPA)[2], digits = 2),  Median = round(median(CGPA), digits = 2), Mean = round(mean(CGPA), digits = 2), Third_Quartile = round(summary(CGPA)[5], digits = 2), Max = round(max(CGPA), digits = 2))
+
+knitr::kable(city_detail)
+
+```
+
+Now, applying ANOVA test to analyze the effect of City on CGPA
+
+```{r}
+model <- aov(CGPA ~ CITY, data = sample_data)
+summary(model)
+```
+
+## SECONDARY vs CGPA
+
+```{r, echo=FALSE}
+
+sample_data <- ddply(ISLAMABAD_data,.(ISLAMABAD_data$SECONDARY),function(x) x[sample(nrow(x), 500),])
+
+sec_detail <- sample_data %>% group_by(SECONDARY) %>% summarise(Student_Count = n(), Min = round(min(CGPA), digits = 2), First_Quartile = round(summary(CGPA)[2], digits = 2),  Median = round(median(CGPA), digits = 2), Mean = round(mean(CGPA), digits = 2), Third_Quartile = round(summary(CGPA)[5], digits = 2), Max = round(max(CGPA), digits = 2))
+
+knitr::kable(sec_detail)
+
+```
+
+Now, applying ANOVA test to analyze the effect of Secondary on CGPA
+
+```{r}
+model <- aov(CGPA ~ SECONDARY, data = sample_data)
+summary(model)
+```
+
+## SCHOOL vs CGPA
+
+```{r, echo=FALSE}
+
+sample_data <- ISLAMABAD_data %>% group_by(SCHOOL) %>% filter(n() > 20)
+  
+sample_data <- ddply(sample_data,.(sample_data$SCHOOL),function(x) x[sample(nrow(x), 20),])
+
+school_detail <- sample_data %>% group_by(SCHOOL) %>% summarise(Student_Count = n(), Min = round(min(CGPA), digits = 2), First_Quartile = round(summary(CGPA)[2], digits = 2),  Median = round(median(CGPA), digits = 2), Mean = round(mean(CGPA), digits = 2), Third_Quartile = round(summary(CGPA)[5], digits = 2), Max = round(max(CGPA), digits = 2))
+
+knitr::kable(school_detail)
+
+```
+
+Now, applying ANOVA test to analyze the effect of School on CGPA
+
+```{r}
+model <- aov(CGPA ~ SCHOOL, data = sample_data)
+summary(model)
+```
+
+## HIGHER SECONDARY vs CGPA
+
+```{r, echo=FALSE}
+
+sample_data <- ddply(ISLAMABAD_data,.(ISLAMABAD_data$HIGHER_SECONDARY),function(x) x[sample(nrow(x), 500),])
+
+sec_detail <- sample_data %>% group_by(HIGHER_SECONDARY) %>% summarise(Student_Count = n(), Min = round(min(CGPA), digits = 2), First_Quartile = round(summary(CGPA)[2], digits = 2),  Median = round(median(CGPA), digits = 2), Mean = round(mean(CGPA), digits = 2), Third_Quartile = round(summary(CGPA)[5], digits = 2), Max = round(max(CGPA), digits = 2))
+
+knitr::kable(sec_detail)
+
+```
+
+Now, applying ANOVA test to analyze the effect of Higher Secondary on CGPA
+
+```{r}
+model <- aov(CGPA ~ HIGHER_SECONDARY, data = sample_data)
+summary(model)
+```
+
+## COLLEGE vs CGPA
+
+```{r, echo=FALSE}
+
+sample_data <- ISLAMABAD_data %>% group_by(COLLEGE) %>% filter(n() > 20)
+  
+sample_data <- ddply(sample_data,.(sample_data$COLLEGE),function(x) x[sample(nrow(x), 20),])
+
+college_detail <- sample_data %>% group_by(COLLEGE) %>% summarise(Student_Count = n(), Min = round(min(CGPA), digits = 2), First_Quartile = round(summary(CGPA)[2], digits = 2),  Median = round(median(CGPA), digits = 2), Mean = round(mean(CGPA), digits = 2), Third_Quartile = round(summary(CGPA)[5], digits = 2), Max = round(max(CGPA), digits = 2))
+
+knitr::kable(college_detail)
+
+```
+
+Now, applying ANOVA test to analyze the effect of College on CGPA
+
+```{r}
+model <- aov(CGPA ~ COLLEGE, data = sample_data)
+summary(model)
+```
+
+## FIRST_SEM vs CGPA
+
+```{r, echo=FALSE}
+
+sample_data <- ISLAMABAD_data %>% group_by(FIRST_SEM) %>% filter(n() > 50)
+  
+sample_data <- ddply(sample_data,.(sample_data$FIRST_SEM),function(x) x[sample(nrow(x), 50),])
+
+fir_sem_detail <- sample_data %>% group_by(FIRST_SEM) %>% summarise(Student_Count = n(), Min = round(min(CGPA), digits = 2), First_Quartile = round(summary(CGPA)[2], digits = 2),  Median = round(median(CGPA), digits = 2), Mean = round(mean(CGPA), digits = 2), Third_Quartile = round(summary(CGPA)[5], digits = 2), Max = round(max(CGPA), digits = 2))
+
+knitr::kable(fir_sem_detail)
+
+```
+
+Now, applying ANOVA test to analyze the effect of First Semester on CGPA
+
+```{r}
+model <- aov(CGPA ~ FIRST_SEM, data = sample_data)
+summary(model)
+```
+
+## Effect of School  Grades on CGPA
+
+```{r, echo=FALSE}
+
+ISLAMABAD_data %>% ggplot(aes(SEC_GRADE, CGPA, color = SEC_GRADE)) + geom_point(size = 0.9, alpha = 0.5, show.legend = FALSE) + theme_bw() + scale_x_continuous(limits = c(200,850)) + scale_color_gradient(low = "#0091ff", high = "#f0650e") + stat_smooth(method = "lm", size = 1, show.legend = FALSE) + ggtitle("Effect of School Grades on CGPA") + ylab("SECONDARY GRADE")
+```
+
+```{r}
+cor.test(ISLAMABAD_data$SEC_GRADE, ISLAMABAD_data$CGPA, method = "pearson")
+cor.test(ISLAMABAD_data$SEC_GRADE, ISLAMABAD_data$CGPA, method = "kendall")
+cor.test(ISLAMABAD_data$SEC_GRADE, ISLAMABAD_data$CGPA, method = "spearman")
+```
+
+## Effect of College Grades on CGPA
+
+```{r, echo=FALSE}
+
+ISLAMABAD_data %>% ggplot(aes(HIG_SEC_GRADE, CGPA, color = HIG_SEC_GRADE)) + geom_point(size = 0.9, alpha = 0.5, show.legend = FALSE) + theme_bw() + scale_x_continuous(limits = c(200,1100)) + scale_color_gradient(low = "#0091ff", high = "#f0650e") + stat_smooth(method = "lm", size = 1, show.legend = FALSE) + ggtitle("Effect of College Grades on CGPA") + ylab("HIGHER SECONDARY GRADE")
+
+```
+
+```{r}
+cor.test(ISLAMABAD_data$HIG_SEC_GRADE, ISLAMABAD_data$CGPA, method = "pearson")
+cor.test(ISLAMABAD_data$HIG_SEC_GRADE, ISLAMABAD_data$CGPA, method = "kendall")
+cor.test(ISLAMABAD_data$HIG_SEC_GRADE, ISLAMABAD_data$CGPA, method = "spearman")
+```
+
+## Last Semester vs CGPA
+
+```{r, echo=FALSE}
+
+sample_data <- ISLAMABAD_data %>% group_by(LAST_SEM) %>% filter(n() > 50)
+  
+sample_data <- ddply(sample_data,.(sample_data$LAST_SEM),function(x) x[sample(nrow(x), 50),])
+
+las_sem_detail <- sample_data %>% group_by(LAST_SEM) %>% summarise(Student_Count = n(), Min = round(min(CGPA), digits = 2), First_Quartile = round(summary(CGPA)[2], digits = 2),  Median = round(median(CGPA), digits = 2), Mean = round(mean(CGPA), digits = 2), Third_Quartile = round(summary(CGPA)[5], digits = 2), Max = round(max(CGPA), digits = 2))
+
+knitr::kable(las_sem_detail)
+
+```
+
+Now, applying ANOVA test to analyze the effect of Last Semester on CGPA
+
+```{r}
+model <- aov(CGPA ~ LAST_SEM, data = sample_data)
+summary(model)
+```
+
+### LAHORE Campus
+
+```{r, echo=FALSE}
+LAHORE_data <- data %>% filter(grepl("LHR", CAMPUS))
+```
+
+## Degree Programs vs CGPA
+
+Since there is imbalanced in no. of students, therefore selecting equal number of students randomly from each program
+
+```{r, echo=FALSE}
+
+sample_data <- LAHORE_data %>% group_by(PROG_CODE) %>% filter(n() > 200)
+
+sample_data <- ddply(sample_data,.(sample_data$PROG_CODE),function(x) x[sample(nrow(x), 200),])
+
+program_detail <- sample_data %>% group_by(PROG_CODE) %>% summarise(Student_Count = n(), Min = round(min(CGPA), digits = 2), First_Quartile = round(summary(CGPA)[2], digits = 2),  Median = round(median(CGPA), digits = 2), Mean = round(mean(CGPA), digits = 2), Third_Quartile = round(summary(CGPA)[5], digits = 2), Max = round(max(CGPA), digits = 2))
+
+knitr::kable(program_detail)
+
+```
+
+Now, applying ANOVA test to analyze the effect of Degree Program on CGPA
+
+```{r}
+model <- aov(CGPA ~ PROG_CODE, data = sample_data)
+summary(model)
+```
+
+## Gender vs CGPA
+
+```{r, echo=FALSE}
+
+sample_data <- ddply(LAHORE_data,.(LAHORE_data$GENDER),function(x) x[sample(nrow(x), 550),])
+
+gender_detail <- sample_data %>% group_by(GENDER) %>% summarise(Student_Count = n(), Min = round(min(CGPA), digits = 2), First_Quartile = round(summary(CGPA)[2], digits = 2),  Median = round(median(CGPA), digits = 2), Mean = round(mean(CGPA), digits = 2), Third_Quartile = round(summary(CGPA)[5], digits = 2), Max = round(max(CGPA), digits = 2))
+
+knitr::kable(gender_detail)
+
+```
+
+Now, applying ANOVA test to analyze the effect of Gender on CGPA
+
+```{r}
+model <- aov(CGPA ~ GENDER, data = sample_data)
+summary(model)
+```
+
+## City vs CGPA
+
+```{r, echo=FALSE}
+
+sample_data <- LAHORE_data %>% group_by(CITY) %>% filter(n() > 30)
+  
+sample_data <- ddply(sample_data,.(sample_data$CITY),function(x) x[sample(nrow(x), 30),])
+
+city_detail <- sample_data %>% group_by(CITY) %>% summarise(Student_Count = n(), Min = round(min(CGPA), digits = 2), First_Quartile = round(summary(CGPA)[2], digits = 2),  Median = round(median(CGPA), digits = 2), Mean = round(mean(CGPA), digits = 2), Third_Quartile = round(summary(CGPA)[5], digits = 2), Max = round(max(CGPA), digits = 2))
+
+knitr::kable(city_detail)
+
+```
+
+Now, applying ANOVA test to analyze the effect of City on CGPA
+
+```{r}
+model <- aov(CGPA ~ CITY, data = sample_data)
+summary(model)
+```
+
+## SECONDARY vs CGPA
+
+```{r, echo=FALSE}
+
+sample_data <- ddply(LAHORE_data,.(LAHORE_data$SECONDARY),function(x) x[sample(nrow(x), 400),])
+
+sec_detail <- sample_data %>% group_by(SECONDARY) %>% summarise(Student_Count = n(), Min = round(min(CGPA), digits = 2), First_Quartile = round(summary(CGPA)[2], digits = 2),  Median = round(median(CGPA), digits = 2), Mean = round(mean(CGPA), digits = 2), Third_Quartile = round(summary(CGPA)[5], digits = 2), Max = round(max(CGPA), digits = 2))
+
+knitr::kable(sec_detail)
+
+```
+
+Now, applying ANOVA test to analyze the effect of Secondary on CGPA
+
+```{r}
+model <- aov(CGPA ~ SECONDARY, data = sample_data)
+summary(model)
+```
+
+## SCHOOL vs CGPA
+
+```{r, echo=FALSE}
+
+sample_data <- LAHORE_data %>% group_by(SCHOOL) %>% filter(n() > 10)
+  
+sample_data <- ddply(sample_data,.(sample_data$SCHOOL),function(x) x[sample(nrow(x), 10),])
+
+school_detail <- sample_data %>% group_by(SCHOOL) %>% summarise(Student_Count = n(), Min = round(min(CGPA), digits = 2), First_Quartile = round(summary(CGPA)[2], digits = 2),  Median = round(median(CGPA), digits = 2), Mean = round(mean(CGPA), digits = 2), Third_Quartile = round(summary(CGPA)[5], digits = 2), Max = round(max(CGPA), digits = 2))
+
+knitr::kable(school_detail)
+
+```
+
+Now, applying ANOVA test to analyze the effect of School on CGPA
+
+```{r}
+model <- aov(CGPA ~ SCHOOL, data = sample_data)
+summary(model)
+```
+
+## HIGHER SECONDARY vs CGPA
+
+```{r, echo=FALSE}
+
+sample_data <- ddply(LAHORE_data,.(LAHORE_data$HIGHER_SECONDARY),function(x) x[sample(nrow(x), 400),])
+
+sec_detail <- sample_data %>% group_by(HIGHER_SECONDARY) %>% summarise(Student_Count = n(), Min = round(min(CGPA), digits = 2), First_Quartile = round(summary(CGPA)[2], digits = 2),  Median = round(median(CGPA), digits = 2), Mean = round(mean(CGPA), digits = 2), Third_Quartile = round(summary(CGPA)[5], digits = 2), Max = round(max(CGPA), digits = 2))
+
+knitr::kable(sec_detail)
+
+```
+
+Now, applying ANOVA test to analyze the effect of Higher Secondary on CGPA
+
+```{r}
+model <- aov(CGPA ~ HIGHER_SECONDARY, data = sample_data)
+summary(model)
+```
+
+## COLLEGE vs CGPA
+
+```{r, echo=FALSE}
+
+sample_data <- LAHORE_data %>% group_by(COLLEGE) %>% filter(n() > 10)
+  
+sample_data <- ddply(sample_data,.(sample_data$COLLEGE),function(x) x[sample(nrow(x), 10),])
+
+college_detail <- sample_data %>% group_by(COLLEGE) %>% summarise(Student_Count = n(), Min = round(min(CGPA), digits = 2), First_Quartile = round(summary(CGPA)[2], digits = 2),  Median = round(median(CGPA), digits = 2), Mean = round(mean(CGPA), digits = 2), Third_Quartile = round(summary(CGPA)[5], digits = 2), Max = round(max(CGPA), digits = 2))
+
+knitr::kable(college_detail)
+
+```
+
+Now, applying ANOVA test to analyze the effect of College on CGPA
+
+```{r}
+model <- aov(CGPA ~ COLLEGE, data = sample_data)
+summary(model)
+```
+
+## FIRST_SEM vs CGPA
+
+```{r, echo=FALSE}
+
+sample_data <- LAHORE_data %>% group_by(FIRST_SEM) %>% filter(n() > 30)
+  
+sample_data <- ddply(sample_data,.(sample_data$FIRST_SEM),function(x) x[sample(nrow(x), 30),])
+
+fir_sem_detail <- sample_data %>% group_by(FIRST_SEM) %>% summarise(Student_Count = n(), Min = round(min(CGPA), digits = 2), First_Quartile = round(summary(CGPA)[2], digits = 2),  Median = round(median(CGPA), digits = 2), Mean = round(mean(CGPA), digits = 2), Third_Quartile = round(summary(CGPA)[5], digits = 2), Max = round(max(CGPA), digits = 2))
+
+knitr::kable(fir_sem_detail)
+
+```
+
+Now, applying ANOVA test to analyze the effect of First Semester on CGPA
+
+```{r}
+model <- aov(CGPA ~ FIRST_SEM, data = sample_data)
+summary(model)
+```
+
+## Effect of School  Grades on CGPA
+
+```{r, echo=FALSE}
+
+LAHORE_data %>% ggplot(aes(SEC_GRADE, CGPA, color = SEC_GRADE)) + geom_point(size = 0.9, alpha = 0.5, show.legend = FALSE) + theme_bw() + scale_x_continuous(limits = c(200,850)) + scale_color_gradient(low = "#0091ff", high = "#f0650e") + stat_smooth(method = "lm", size = 1, show.legend = FALSE) + ggtitle("Effect of School Grades on CGPA") + ylab("SECONDARY GRADE")
+```
+
+```{r}
+cor.test(LAHORE_data$SEC_GRADE, LAHORE_data$CGPA, method = "pearson")
+cor.test(LAHORE_data$SEC_GRADE, LAHORE_data$CGPA, method = "kendall")
+cor.test(LAHORE_data$SEC_GRADE, LAHORE_data$CGPA, method = "spearman")
+```
+
+## Effect of College Grades on CGPA
+
+```{r, echo=FALSE}
+
+LAHORE_data %>% ggplot(aes(HIG_SEC_GRADE, CGPA, color = HIG_SEC_GRADE)) + geom_point(size = 0.9, alpha = 0.5, show.legend = FALSE) + theme_bw() + scale_x_continuous(limits = c(200,1100)) + scale_color_gradient(low = "#0091ff", high = "#f0650e") + stat_smooth(method = "lm", size = 1, show.legend = FALSE) + ggtitle("Effect of College Grades on CGPA") + ylab("HIGHER SECONDARY GRADE")
+
+```
+
+```{r}
+cor.test(LAHORE_data$HIG_SEC_GRADE, LAHORE_data$CGPA, method = "pearson")
+cor.test(LAHORE_data$HIG_SEC_GRADE, LAHORE_data$CGPA, method = "kendall")
+cor.test(LAHORE_data$HIG_SEC_GRADE, LAHORE_data$CGPA, method = "spearman")
+```
+
+## Last Semester vs CGPA
+
+```{r, echo=FALSE}
+
+sample_data <- LAHORE_data %>% group_by(LAST_SEM) %>% filter(n() > 30)
+  
+sample_data <- ddply(sample_data,.(sample_data$LAST_SEM),function(x) x[sample(nrow(x), 30),])
+
+las_sem_detail <- sample_data %>% group_by(LAST_SEM) %>% summarise(Student_Count = n(), Min = round(min(CGPA), digits = 2), First_Quartile = round(summary(CGPA)[2], digits = 2),  Median = round(median(CGPA), digits = 2), Mean = round(mean(CGPA), digits = 2), Third_Quartile = round(summary(CGPA)[5], digits = 2), Max = round(max(CGPA), digits = 2))
+
+knitr::kable(las_sem_detail)
+
+```
+
+Now, applying ANOVA test to analyze the effect of Last Semester on CGPA
+
+```{r}
+model <- aov(CGPA ~ LAST_SEM, data = sample_data)
+summary(model)
+```
+
+### PESHAWAR Campus
+
+```{r, echo=FALSE}
+PESHAWAR_data <- data %>% filter(grepl("PWR", CAMPUS))
+```
+
+## Degree Programs vs CGPA
+
+Since there is imbalanced in no. of students, therefore selecting equal number of students randomly from each program
+
+```{r, echo=FALSE}
+
+sample_data <- PESHAWAR_data %>% group_by(PROG_CODE) %>% filter(n() > 40)
+
+sample_data <- ddply(sample_data,.(sample_data$PROG_CODE),function(x) x[sample(nrow(x), 40),])
+
+program_detail <- sample_data %>% group_by(PROG_CODE) %>% summarise(Student_Count = n(), Min = round(min(CGPA), digits = 2), First_Quartile = round(summary(CGPA)[2], digits = 2),  Median = round(median(CGPA), digits = 2), Mean = round(mean(CGPA), digits = 2), Third_Quartile = round(summary(CGPA)[5], digits = 2), Max = round(max(CGPA), digits = 2))
+
+knitr::kable(program_detail)
+
+```
+
+Now, applying ANOVA test to analyze the effect of Degree Program on CGPA
+
+```{r}
+model <- aov(CGPA ~ PROG_CODE, data = sample_data)
+summary(model)
+```
+
+## Gender vs CGPA
+
+```{r, echo=FALSE}
+
+sample_data <- ddply(PESHAWAR_data,.(PESHAWAR_data$GENDER),function(x) x[sample(nrow(x), 100),])
+
+gender_detail <- sample_data %>% group_by(GENDER) %>% summarise(Student_Count = n(), Min = round(min(CGPA), digits = 2), First_Quartile = round(summary(CGPA)[2], digits = 2),  Median = round(median(CGPA), digits = 2), Mean = round(mean(CGPA), digits = 2), Third_Quartile = round(summary(CGPA)[5], digits = 2), Max = round(max(CGPA), digits = 2))
+
+knitr::kable(gender_detail)
+
+```
+
+Now, applying ANOVA test to analyze the effect of Gender on CGPA
+
+```{r}
+model <- aov(CGPA ~ GENDER, data = sample_data)
+summary(model)
+```
+
+## City vs CGPA
+
+```{r, echo=FALSE}
+
+sample_data <- PESHAWAR_data %>% group_by(CITY) %>% filter(n() > 30)
+  
+sample_data <- ddply(sample_data,.(sample_data$CITY),function(x) x[sample(nrow(x), 30),])
+
+city_detail <- sample_data %>% group_by(CITY) %>% summarise(Student_Count = n(), Min = round(min(CGPA), digits = 2), First_Quartile = round(summary(CGPA)[2], digits = 2),  Median = round(median(CGPA), digits = 2), Mean = round(mean(CGPA), digits = 2), Third_Quartile = round(summary(CGPA)[5], digits = 2), Max = round(max(CGPA), digits = 2))
+
+knitr::kable(city_detail)
+
+```
+
+Now, applying ANOVA test to analyze the effect of City on CGPA
+
+```{r}
+model <- aov(CGPA ~ CITY, data = sample_data)
+summary(model)
+```
+
+## SECONDARY vs CGPA
+
+Only 2% of students of OLEVEL
+
+```{r, echo=FALSE}
+
+sample_data <- ddply(PESHAWAR_data,.(PESHAWAR_data$SECONDARY),function(x) x[sample(nrow(x), 20),])
+
+sec_detail <- sample_data %>% group_by(SECONDARY) %>% summarise(Student_Count = n(), Min = round(min(CGPA), digits = 2), First_Quartile = round(summary(CGPA)[2], digits = 2),  Median = round(median(CGPA), digits = 2), Mean = round(mean(CGPA), digits = 2), Third_Quartile = round(summary(CGPA)[5], digits = 2), Max = round(max(CGPA), digits = 2))
+
+knitr::kable(sec_detail)
+
+```
+
+Now, applying ANOVA test to analyze the effect of Secondary on CGPA
+
+```{r}
+model <- aov(CGPA ~ SECONDARY, data = sample_data)
+summary(model)
+```
+
+## SCHOOL vs CGPA
+
+```{r, echo=FALSE}
+
+sample_data <- PESHAWAR_data %>% group_by(SCHOOL) %>% filter(n() > 10)
+  
+sample_data <- ddply(sample_data,.(sample_data$SCHOOL),function(x) x[sample(nrow(x), 10),])
+
+school_detail <- sample_data %>% group_by(SCHOOL) %>% summarise(Student_Count = n(), Min = round(min(CGPA), digits = 2), First_Quartile = round(summary(CGPA)[2], digits = 2),  Median = round(median(CGPA), digits = 2), Mean = round(mean(CGPA), digits = 2), Third_Quartile = round(summary(CGPA)[5], digits = 2), Max = round(max(CGPA), digits = 2))
+
+knitr::kable(school_detail)
+
+```
+
+Now, applying ANOVA test to analyze the effect of School on CGPA
+
+```{r}
+model <- aov(CGPA ~ SCHOOL, data = sample_data)
+summary(model)
+```
+
+## HIGHER SECONDARY vs CGPA
+
+```{r, echo=FALSE}
+
+sample_data <- ddply(PESHAWAR_data,.(PESHAWAR_data$HIGHER_SECONDARY),function(x) x[sample(nrow(x), 20),])
+
+sec_detail <- sample_data %>% group_by(HIGHER_SECONDARY) %>% summarise(Student_Count = n(), Min = round(min(CGPA), digits = 2), First_Quartile = round(summary(CGPA)[2], digits = 2),  Median = round(median(CGPA), digits = 2), Mean = round(mean(CGPA), digits = 2), Third_Quartile = round(summary(CGPA)[5], digits = 2), Max = round(max(CGPA), digits = 2))
+
+knitr::kable(sec_detail)
+
+```
+
+Now, applying ANOVA test to analyze the effect of Higher Secondary on CGPA
+
+```{r}
+model <- aov(CGPA ~ HIGHER_SECONDARY, data = sample_data)
+summary(model)
+```
+
+## COLLEGE vs CGPA
+
+```{r, echo=FALSE}
+
+sample_data <- PESHAWAR_data %>% group_by(COLLEGE) %>% filter(n() > 10)
+  
+sample_data <- ddply(sample_data,.(sample_data$COLLEGE),function(x) x[sample(nrow(x), 10),])
+
+college_detail <- sample_data %>% group_by(COLLEGE) %>% summarise(Student_Count = n(), Min = round(min(CGPA), digits = 2), First_Quartile = round(summary(CGPA)[2], digits = 2),  Median = round(median(CGPA), digits = 2), Mean = round(mean(CGPA), digits = 2), Third_Quartile = round(summary(CGPA)[5], digits = 2), Max = round(max(CGPA), digits = 2))
+
+knitr::kable(college_detail)
+
+```
+
+Now, applying ANOVA test to analyze the effect of College on CGPA
+
+```{r}
+model <- aov(CGPA ~ COLLEGE, data = sample_data)
+summary(model)
+```
+
+## FIRST_SEM vs CGPA
+
+```{r, echo=FALSE}
+
+sample_data <- PESHAWAR_data %>% group_by(FIRST_SEM) %>% filter(n() > 30)
+  
+sample_data <- ddply(sample_data,.(sample_data$FIRST_SEM),function(x) x[sample(nrow(x), 30),])
+
+fir_sem_detail <- sample_data %>% group_by(FIRST_SEM) %>% summarise(Student_Count = n(), Min = round(min(CGPA), digits = 2), First_Quartile = round(summary(CGPA)[2], digits = 2),  Median = round(median(CGPA), digits = 2), Mean = round(mean(CGPA), digits = 2), Third_Quartile = round(summary(CGPA)[5], digits = 2), Max = round(max(CGPA), digits = 2))
+
+knitr::kable(fir_sem_detail)
+
+```
+
+Now, applying ANOVA test to analyze the effect of First Semester on CGPA
+
+```{r}
+model <- aov(CGPA ~ FIRST_SEM, data = sample_data)
+summary(model)
+```
+
+## Effect of School  Grades on CGPA
+
+```{r, echo=FALSE}
+
+PESHAWAR_data %>% ggplot(aes(SEC_GRADE, CGPA, color = SEC_GRADE)) + geom_point(size = 0.9, alpha = 0.5, show.legend = FALSE) + theme_bw() + scale_x_continuous(limits = c(200,850)) + scale_color_gradient(low = "#0091ff", high = "#f0650e") + stat_smooth(method = "lm", size = 1, show.legend = FALSE) + ggtitle("Effect of School Grades on CGPA") + ylab("SECONDARY GRADE")
+```
+
+```{r}
+cor.test(PESHAWAR_data$SEC_GRADE, PESHAWAR_data$CGPA, method = "pearson")
+cor.test(PESHAWAR_data$SEC_GRADE, PESHAWAR_data$CGPA, method = "kendall")
+cor.test(PESHAWAR_data$SEC_GRADE, PESHAWAR_data$CGPA, method = "spearman")
+```
+
+## Effect of College Grades on CGPA
+
+```{r, echo=FALSE}
+
+PESHAWAR_data %>% ggplot(aes(HIG_SEC_GRADE, CGPA, color = HIG_SEC_GRADE)) + geom_point(size = 0.9, alpha = 0.5, show.legend = FALSE) + theme_bw() + scale_x_continuous(limits = c(200,1100)) + scale_color_gradient(low = "#0091ff", high = "#f0650e") + stat_smooth(method = "lm", size = 1, show.legend = FALSE) + ggtitle("Effect of College Grades on CGPA") + ylab("HIGHER SECONDARY GRADE")
+
+```
+
+```{r}
+cor.test(PESHAWAR_data$HIG_SEC_GRADE, PESHAWAR_data$CGPA, method = "pearson")
+cor.test(PESHAWAR_data$HIG_SEC_GRADE, PESHAWAR_data$CGPA, method = "kendall")
+cor.test(PESHAWAR_data$HIG_SEC_GRADE, PESHAWAR_data$CGPA, method = "spearman")
+```
+
+## Last Semester vs CGPA
+
+```{r, echo=FALSE}
+
+sample_data <- PESHAWAR_data %>% group_by(LAST_SEM) %>% filter(n() > 30)
+  
+sample_data <- ddply(sample_data,.(sample_data$LAST_SEM),function(x) x[sample(nrow(x), 30),])
+
+las_sem_detail <- sample_data %>% group_by(LAST_SEM) %>% summarise(Student_Count = n(), Min = round(min(CGPA), digits = 2), First_Quartile = round(summary(CGPA)[2], digits = 2),  Median = round(median(CGPA), digits = 2), Mean = round(mean(CGPA), digits = 2), Third_Quartile = round(summary(CGPA)[5], digits = 2), Max = round(max(CGPA), digits = 2))
+
+knitr::kable(las_sem_detail)
+
+```
+
+Now, applying ANOVA test to analyze the effect of Last Semester on CGPA
+
+```{r}
+model <- aov(CGPA ~ LAST_SEM, data = sample_data)
+summary(model)
+```
+
+### FAISALABAD Campus
+
+```{r, echo=FALSE}
+FAISALABAD_data <- data %>% filter(grepl("FSD", CAMPUS))
+```
+
+## Degree Programs vs CGPA
+
+Since there is imbalanced in no. of students, therefore selecting equal number of students randomly from each program
+
+```{r, echo=FALSE}
+
+sample_data <- FAISALABAD_data %>% group_by(PROG_CODE) %>% filter(n() > 50)
+
+sample_data <- ddply(sample_data,.(sample_data$PROG_CODE),function(x) x[sample(nrow(x), 50),])
+
+program_detail <- sample_data %>% group_by(PROG_CODE) %>% summarise(Student_Count = n(), Min = round(min(CGPA), digits = 2), First_Quartile = round(summary(CGPA)[2], digits = 2),  Median = round(median(CGPA), digits = 2), Mean = round(mean(CGPA), digits = 2), Third_Quartile = round(summary(CGPA)[5], digits = 2), Max = round(max(CGPA), digits = 2))
+
+knitr::kable(program_detail)
+
+```
+
+Now, applying ANOVA test to analyze the effect of Degree Program on CGPA
+
+```{r}
+model <- aov(CGPA ~ PROG_CODE, data = sample_data)
+summary(model)
+```
+
+## Gender vs CGPA
+
+```{r, echo=FALSE}
+
+sample_data <- ddply(FAISALABAD_data,.(FAISALABAD_data$GENDER),function(x) x[sample(nrow(x), 100),])
+
+gender_detail <- sample_data %>% group_by(GENDER) %>% summarise(Student_Count = n(), Min = round(min(CGPA), digits = 2), First_Quartile = round(summary(CGPA)[2], digits = 2),  Median = round(median(CGPA), digits = 2), Mean = round(mean(CGPA), digits = 2), Third_Quartile = round(summary(CGPA)[5], digits = 2), Max = round(max(CGPA), digits = 2))
+
+knitr::kable(gender_detail)
+
+```
+
+Now, applying ANOVA test to analyze the effect of Gender on CGPA
+
+```{r}
+model <- aov(CGPA ~ GENDER, data = sample_data)
+summary(model)
+```
+
+## City vs CGPA
+
+```{r, echo=FALSE}
+
+sample_data <- FAISALABAD_data %>% group_by(CITY) %>% filter(n() > 30)
+  
+sample_data <- ddply(sample_data,.(sample_data$CITY),function(x) x[sample(nrow(x), 30),])
+
+city_detail <- sample_data %>% group_by(CITY) %>% summarise(Student_Count = n(), Min = round(min(CGPA), digits = 2), First_Quartile = round(summary(CGPA)[2], digits = 2),  Median = round(median(CGPA), digits = 2), Mean = round(mean(CGPA), digits = 2), Third_Quartile = round(summary(CGPA)[5], digits = 2), Max = round(max(CGPA), digits = 2))
+
+knitr::kable(city_detail)
+
+```
+
+Now, applying ANOVA test to analyze the effect of City on CGPA
+
+```{r}
+model <- aov(CGPA ~ CITY, data = sample_data)
+summary(model)
+```
+
+## SECONDARY vs CGPA
+
+```{r, echo=FALSE}
+
+sample_data <- ddply(FAISALABAD_data,.(FAISALABAD_data$SECONDARY),function(x) x[sample(nrow(x), 50),])
+
+sec_detail <- sample_data %>% group_by(SECONDARY) %>% summarise(Student_Count = n(), Min = round(min(CGPA), digits = 2), First_Quartile = round(summary(CGPA)[2], digits = 2),  Median = round(median(CGPA), digits = 2), Mean = round(mean(CGPA), digits = 2), Third_Quartile = round(summary(CGPA)[5], digits = 2), Max = round(max(CGPA), digits = 2))
+
+knitr::kable(sec_detail)
+
+```
+
+Now, applying ANOVA test to analyze the effect of Secondary on CGPA
+
+```{r}
+model <- aov(CGPA ~ SECONDARY, data = sample_data)
+summary(model)
+```
+
+## SCHOOL vs CGPA
+
+```{r, echo=FALSE}
+
+sample_data <- FAISALABAD_data %>% group_by(SCHOOL) %>% filter(n() > 10)
+  
+sample_data <- ddply(sample_data,.(sample_data$SCHOOL),function(x) x[sample(nrow(x), 10),])
+
+school_detail <- sample_data %>% group_by(SCHOOL) %>% summarise(Student_Count = n(), Min = round(min(CGPA), digits = 2), First_Quartile = round(summary(CGPA)[2], digits = 2),  Median = round(median(CGPA), digits = 2), Mean = round(mean(CGPA), digits = 2), Third_Quartile = round(summary(CGPA)[5], digits = 2), Max = round(max(CGPA), digits = 2))
+
+knitr::kable(school_detail)
+
+```
+
+Now, applying ANOVA test to analyze the effect of School on CGPA
+
+```{r}
+model <- aov(CGPA ~ SCHOOL, data = sample_data)
+summary(model)
+```
+
+## HIGHER SECONDARY vs CGPA
+
+```{r, echo=FALSE}
+
+sample_data <- ddply(FAISALABAD_data,.(FAISALABAD_data$HIGHER_SECONDARY),function(x) x[sample(nrow(x), 40),])
+
+sec_detail <- sample_data %>% group_by(HIGHER_SECONDARY) %>% summarise(Student_Count = n(), Min = round(min(CGPA), digits = 2), First_Quartile = round(summary(CGPA)[2], digits = 2),  Median = round(median(CGPA), digits = 2), Mean = round(mean(CGPA), digits = 2), Third_Quartile = round(summary(CGPA)[5], digits = 2), Max = round(max(CGPA), digits = 2))
+
+knitr::kable(sec_detail)
+
+```
+
+Now, applying ANOVA test to analyze the effect of Higher Secondary on CGPA
+
+```{r}
+model <- aov(CGPA ~ HIGHER_SECONDARY, data = sample_data)
+summary(model)
+```
+
+## COLLEGE vs CGPA
+
+```{r, echo=FALSE}
+
+sample_data <- FAISALABAD_data %>% group_by(COLLEGE) %>% filter(n() > 10)
+  
+sample_data <- ddply(sample_data,.(sample_data$COLLEGE),function(x) x[sample(nrow(x), 10),])
+
+college_detail <- sample_data %>% group_by(COLLEGE) %>% summarise(Student_Count = n(), Min = round(min(CGPA), digits = 2), First_Quartile = round(summary(CGPA)[2], digits = 2),  Median = round(median(CGPA), digits = 2), Mean = round(mean(CGPA), digits = 2), Third_Quartile = round(summary(CGPA)[5], digits = 2), Max = round(max(CGPA), digits = 2))
+
+knitr::kable(college_detail)
+
+```
+
+Now, applying ANOVA test to analyze the effect of College on CGPA
+
+```{r}
+model <- aov(CGPA ~ COLLEGE, data = sample_data)
+summary(model)
+```
+
+## FIRST_SEM vs CGPA
+
+```{r, echo=FALSE}
+
+sample_data <- FAISALABAD_data %>% group_by(FIRST_SEM) %>% filter(n() > 30)
+  
+sample_data <- ddply(sample_data,.(sample_data$FIRST_SEM),function(x) x[sample(nrow(x), 30),])
+
+fir_sem_detail <- sample_data %>% group_by(FIRST_SEM) %>% summarise(Student_Count = n(), Min = round(min(CGPA), digits = 2), First_Quartile = round(summary(CGPA)[2], digits = 2),  Median = round(median(CGPA), digits = 2), Mean = round(mean(CGPA), digits = 2), Third_Quartile = round(summary(CGPA)[5], digits = 2), Max = round(max(CGPA), digits = 2))
+
+knitr::kable(fir_sem_detail)
+
+```
+
+Now, applying ANOVA test to analyze the effect of First Semester on CGPA
+
+```{r}
+model <- aov(CGPA ~ FIRST_SEM, data = sample_data)
+summary(model)
+```
+
+## Effect of School  Grades on CGPA
+
+```{r, echo=FALSE}
+
+FAISALABAD_data %>% ggplot(aes(SEC_GRADE, CGPA, color = SEC_GRADE)) + geom_point(size = 0.9, alpha = 0.5, show.legend = FALSE) + theme_bw() + scale_x_continuous(limits = c(200,850)) + scale_color_gradient(low = "#0091ff", high = "#f0650e") + stat_smooth(method = "lm", size = 1, show.legend = FALSE) + ggtitle("Effect of School Grades on CGPA") + ylab("SECONDARY GRADE")
+```
+
+```{r}
+cor.test(FAISALABAD_data$SEC_GRADE, FAISALABAD_data$CGPA, method = "pearson")
+cor.test(FAISALABAD_data$SEC_GRADE, FAISALABAD_data$CGPA, method = "kendall")
+cor.test(FAISALABAD_data$SEC_GRADE, FAISALABAD_data$CGPA, method = "spearman")
+```
+
+## Effect of College Grades on CGPA
+
+```{r, echo=FALSE}
+
+FAISALABAD_data %>% ggplot(aes(HIG_SEC_GRADE, CGPA, color = HIG_SEC_GRADE)) + geom_point(size = 0.9, alpha = 0.5, show.legend = FALSE) + theme_bw() + scale_x_continuous(limits = c(200,1100)) + scale_color_gradient(low = "#0091ff", high = "#f0650e") + stat_smooth(method = "lm", size = 1, show.legend = FALSE) + ggtitle("Effect of College Grades on CGPA") + ylab("HIGHER SECONDARY GRADE")
+
+```
+
+```{r}
+cor.test(FAISALABAD_data$HIG_SEC_GRADE, FAISALABAD_data$CGPA, method = "pearson")
+cor.test(FAISALABAD_data$HIG_SEC_GRADE, FAISALABAD_data$CGPA, method = "kendall")
+cor.test(FAISALABAD_data$HIG_SEC_GRADE, FAISALABAD_data$CGPA, method = "spearman")
+```
+
+## Last Semester vs CGPA
+
+```{r, echo=FALSE}
+
+sample_data <- FAISALABAD_data %>% group_by(LAST_SEM) %>% filter(n() > 30)
+  
+sample_data <- ddply(sample_data,.(sample_data$LAST_SEM),function(x) x[sample(nrow(x), 30),])
+
+las_sem_detail <- sample_data %>% group_by(LAST_SEM) %>% summarise(Student_Count = n(), Min = round(min(CGPA), digits = 2), First_Quartile = round(summary(CGPA)[2], digits = 2),  Median = round(median(CGPA), digits = 2), Mean = round(mean(CGPA), digits = 2), Third_Quartile = round(summary(CGPA)[5], digits = 2), Max = round(max(CGPA), digits = 2))
+
+knitr::kable(las_sem_detail)
+
+```
+
+Now, applying ANOVA test to analyze the effect of Last Semester on CGPA
+
+```{r}
+model <- aov(CGPA ~ LAST_SEM, data = sample_data)
+summary(model)
+```
+
+
+
+

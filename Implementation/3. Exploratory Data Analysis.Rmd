@@ -1,0 +1,517 @@
+---
+title: "Exploratory Data Analysis"
+author: "Areeka Aijaz"
+date: "1/13/2021"
+output: html_document
+---
+
+```{r including external files, echo=FALSE, message=FALSE}
+library(dplyr)
+library(ggplot2)
+
+setwd("E:\\FYP\\FYP-1 (Part 2)\\Implementation")
+source("functions.R")
+
+```
+
+
+```{r, echo=FALSE}
+
+# Read data
+semester_data <- read.csv("E:\\FYP\\FYP-1 (Part 2)\\Datasets\\Cleaned_Semester_Data.csv", stringsAsFactors = FALSE, na.strings=c("","NA"))
+student_data <- read.csv("E:\\FYP\\FYP-1 (Part 2)\\Datasets\\Cleaned_Student_Data.csv", na.strings=c("","NA"))
+```
+
+```{r, echo=FALSE}
+
+data <- merge(semester_data, student_data, by = "STUDENT_ID")
+
+data <- data %>% filter(GENDER != "-")
+
+summary(data)
+str(data)
+
+```
+
+## Exploratory Data Analysis
+
+## Visualizing Whole Data
+
+### Total Students
+
+```{r, echo=FALSE}
+print(paste("Total Students: ", nrow(data)))
+```
+
+### Missing Values in Dataset
+
+```{r, echo=FALSE}
+colSums(is.na(data))
+```
+
+### Total Students in Each Campus
+
+```{r, echo=FALSE}
+print(paste("Total Campuses: ", length(unique(data$CAMPUS))))
+campus_detail <- data %>% group_by(CAMPUS) %>% summarise(Student_Count = n()) 
+knitr::kable(campus_detail)
+data %>% ggplot(aes(CAMPUS, fill = CAMPUS)) + geom_bar() + ylab("STUDENT") + theme_bw()
+```
+
+### Total Students enrolled in Each Degree Program
+
+```{r, echo=FALSE}
+print(paste("Total Degree Programs: ", length(unique(data$PROG_CODE))))
+prog_detail <- data %>% group_by(PROG_CODE) %>% summarise(Student_Count = n()) 
+knitr::kable(prog_detail)
+data %>% ggplot(aes(PROG_CODE, fill = PROG_CODE)) + geom_bar() + ylab("STUDENT") + theme_bw() + theme(axis.text.x = element_text(size=6))
+```
+
+### Programs offered in Each Campus
+
+```{r, echo=FALSE}
+data %>% ggplot(aes(CAMPUS, fill = PROG_CODE)) + geom_bar(position = "dodge") + ggtitle("Programs offered in Each Campus") + ylab("STUDENT") + theme_bw() + theme(axis.text.x = element_text(size=6))
+```
+
+### Total Male & Female Students
+
+```{r, echo=FALSE}
+gender_detail <- data %>% group_by(GENDER) %>% summarise(Student_Count = n()) 
+knitr::kable(gender_detail)
+data %>% ggplot(aes(GENDER, fill = GENDER)) + geom_bar() + ylab("STUDENT") + theme_bw()
+```
+
+### No. of Male & Female Students in Each Campus
+
+```{r, echo=FALSE}
+data %>% ggplot(aes(CAMPUS, fill = GENDER)) + geom_bar(position = "dodge") + ggtitle("No. of Male & Female Students in Each Campus") + ylab("STUDENT") + theme_bw()
+```
+
+### Status of Students
+
+```{r, echo=FALSE}
+print(paste("Unique Statuses: ", length(unique(data$STATUS))))
+status_detail <- data %>% group_by(STATUS) %>% summarise(Student_Count = n()) 
+knitr::kable(status_detail)
+data %>% ggplot(aes(STATUS, fill = STATUS)) + geom_bar() + ylab("STUDENT") + theme_bw()
+```
+
+### Status of Students for Each Campus
+
+```{r, echo=FALSE}
+data %>% ggplot(aes(CAMPUS, fill = STATUS)) + geom_bar(position = "dodge") + ggtitle("Status of Students for Each Campus") + ylab("STUDENT") + theme_bw()
+```
+
+### Status of Students wrt their Graduation Year
+
+```{r, echo=FALSE}
+
+data %>% filter(grepl("Fall", LAST_SEM), !grepl("Current", STATUS)) %>% ggplot(aes(STATUS, fill = STATUS)) + geom_bar() + ylab("STUDENT") + ggtitle("Status of Students - Fall Semesters") + theme_bw() + facet_wrap(~LAST_SEM, ncol = 5) + theme(axis.text.x = element_text(size=8, angle=90, hjust=.5, vjust=.5))
+
+data %>% filter(grepl("Spring", LAST_SEM), !grepl("Current", STATUS)) %>% ggplot(aes(STATUS, fill = STATUS)) + geom_bar() + ylab("STUDENT") + ggtitle("Status of Students - Spring Semesters") + theme_bw() + facet_wrap(~LAST_SEM, ncol = 5) + theme(axis.text.x = element_text(size=8, angle=90, hjust=.5, vjust=.5))
+
+data %>% filter(grepl("Summer", LAST_SEM), !grepl("Current", STATUS)) %>% ggplot(aes(STATUS, fill = STATUS)) + geom_bar() + ylab("STUDENT") + ggtitle("Status of Students - Summer Semesters") + theme_bw() + facet_wrap(~LAST_SEM, ncol = 5) + theme(axis.text.x = element_text(size=8, angle=90, hjust=.5, vjust=.5))
+
+```
+
+### Students from Different Cities
+
+```{r, echo=FALSE}
+print(paste("Total Cities: ", length(unique(data$CITY))))
+city_detail <- data %>% group_by(CITY) %>% summarise(Student_Count = n()) %>% filter(Student_Count > 50)
+knitr::kable(city_detail)
+print(paste("Cities after threshold: ", nrow(city_detail)))
+data %>% group_by(CITY) %>% count %>% filter(n > 50) %>% ggplot(aes(x = CITY, y = n, fill = CITY)) + geom_bar(stat = "identity") + ylab("STUDENT") + ggtitle("No. of Students from Different Citites") + theme_bw() + theme(axis.text.x = element_text(size=6, angle=90, hjust=.6, vjust=.5), legend.position = "none")
+```
+
+### Students from Different Cities for Each Campus
+
+```{r, echo=FALSE}
+city_detail <- data %>% group_by(CAMPUS, CITY) %>% summarise(Student_Count = n()) %>% filter(Student_Count > 30)
+knitr::kable(city_detail)
+print(paste("Cities after threshold: ", nrow(city_detail)))
+
+data %>% group_by(CAMPUS, CITY) %>% count %>% filter(n > 30) %>% ggplot(aes(x = CITY, y = n, fill = CAMPUS)) + geom_bar(stat = "identity") + ylab("STUDENT") + ggtitle("No. of Students from Different Citites for Each Campus") + theme_bw() + theme(axis.text.x = element_text(size=6, angle=90, hjust=.6, vjust=.5))
+
+```
+
+### Educational Background of Students (SSC / O_LEVEL)
+
+```{r, echo=FALSE}
+suppressWarnings(edu1_detail <- data %>% group_by(SECONDARY) %>% summarise(Student_Count = n())) 
+knitr::kable(edu1_detail)
+data %>% ggplot(aes(SECONDARY, fill = SECONDARY)) + geom_bar() + ylab("STUDENT") + theme_bw()
+```
+
+### Educational Background of Students (HSSC / A_LEVEL)
+
+```{r, echo=FALSE}
+suppressWarnings(edu2_detail <- data %>% group_by(HIGHER_SECONDARY) %>% summarise(Student_Count = n()))
+knitr::kable(edu2_detail)
+data %>% ggplot(aes(HIGHER_SECONDARY, fill = HIGHER_SECONDARY)) + geom_bar() + ylab("STUDENT") + theme_bw()
+```
+
+### Overall CGPA of All Campuses
+
+```{r, echo=FALSE}
+
+campus_detail <- data %>% group_by(CAMPUS) %>% summarise(Student_Count = n(), Min = round(min(CGPA), digits = 2), First_Quartile = round(summary(CGPA)[2], digits = 2),  Median = round(median(CGPA), digits = 2), Mean = round(mean(CGPA), digits = 2), Third_Quartile = round(summary(CGPA)[5], digits = 2), Max = round(max(CGPA), digits = 2))
+
+knitr::kable(campus_detail)
+
+data %>% ggplot(aes(CAMPUS, CGPA, color = CAMPUS)) + geom_boxplot() + theme(axis.text.x = element_text(size=6)) + ggtitle("Relationship between CAMPUS & CGPA") + theme_bw()
+
+```
+
+## Campus-wise Visualization
+
+### KARACHI Campus
+
+```{r, echo=FALSE}
+KARACHI_data <- data %>% filter(grepl("KHI", CAMPUS))
+```
+
+### Total Students enrolled in Each Degree Program
+
+```{r, echo=FALSE}
+print(paste("Total Degree Programs offered in KARACHI Campus: ", length(unique(KARACHI_data$PROG_CODE))))
+prog_detail <- KARACHI_data %>% group_by(PROG_CODE) %>% summarise(Student_Count = n()) 
+knitr::kable(prog_detail)
+KARACHI_data %>% ggplot(aes(PROG_CODE, fill = PROG_CODE)) + geom_bar() + ylab("STUDENT") + theme_bw() + theme(axis.text.x = element_text(size=6))
+```
+
+### Total Male & Female Students
+
+```{r, echo=FALSE}
+print(paste("Total Students enrolled in KARACHI Campus: ", nrow(KARACHI_data)))
+gender_detail <- KARACHI_data %>% group_by(GENDER) %>% summarise(Student_Count = n()) 
+knitr::kable(gender_detail)
+KARACHI_data %>% ggplot(aes(GENDER, fill = GENDER)) + geom_bar() + ylab("STUDENT") + theme_bw()
+```
+
+### Status of Students
+
+```{r, echo=FALSE}
+print(paste("Unique Statuses: ", length(unique(KARACHI_data$STATUS))))
+status_detail <- KARACHI_data %>% group_by(STATUS) %>% summarise(Student_Count = n()) 
+knitr::kable(status_detail)
+KARACHI_data %>% ggplot(aes(STATUS, fill = STATUS)) + geom_bar() + ylab("STUDENT") + theme_bw()
+```
+
+### Status of Students wrt their Graduation Year
+
+```{r, echo=FALSE}
+
+KARACHI_data %>% filter(grepl("Fall", LAST_SEM), !grepl("Current", STATUS)) %>% ggplot(aes(STATUS, fill = STATUS)) + geom_bar() + ylab("STUDENT") + ggtitle("Status of Students - Fall Semesters") + theme_bw() + facet_wrap(~LAST_SEM, ncol = 5) + theme(axis.text.x = element_text(size=8, angle=90, hjust=.5, vjust=.5))
+
+KARACHI_data %>% filter(grepl("Spring", LAST_SEM), !grepl("Current", STATUS)) %>% ggplot(aes(STATUS, fill = STATUS)) + geom_bar() + ylab("STUDENT") + ggtitle("Status of Students - Spring Semesters") + theme_bw() + facet_wrap(~LAST_SEM, ncol = 5) + theme(axis.text.x = element_text(size=8, angle=90, hjust=.5, vjust=.5))
+
+KARACHI_data %>% filter(grepl("Summer", LAST_SEM), !grepl("Current", STATUS)) %>% ggplot(aes(STATUS, fill = STATUS)) + geom_bar() + ylab("STUDENT") + ggtitle("Status of Students - Summer Semesters") + theme_bw() + facet_wrap(~LAST_SEM, ncol = 5) + theme(axis.text.x = element_text(size=8, angle=90, hjust=.5, vjust=.5))
+
+```
+
+### Students from Different Cities
+
+```{r, echo=FALSE}
+print(paste("Total Cities: ", length(unique(KARACHI_data$CITY))))
+city_detail <- KARACHI_data %>% group_by(CITY) %>% summarise(Student_Count = n()) %>% filter(Student_Count > 10)
+knitr::kable(city_detail)
+print(paste("Cities after threshold: ", nrow(city_detail)))
+KARACHI_data %>% group_by(CITY) %>% count %>% filter(n > 10) %>% ggplot(aes(x = CITY, y = n, fill = CITY)) + geom_bar(stat = "identity") + ylab("Student") + ggtitle("No. of Students from different Citites") + theme_bw() + theme(axis.text.x = element_text(size=6, angle=90, hjust=.6, vjust=.5), legend.position = "none")
+```
+
+### Educational Background of Students (SSC / O_LEVEL)
+
+```{r, echo=FALSE}
+suppressWarnings(edu1_detail <- KARACHI_data %>% group_by(SECONDARY) %>% summarise(Student_Count = n())) 
+knitr::kable(edu1_detail)
+KARACHI_data %>% ggplot(aes(SECONDARY, fill = SECONDARY)) + geom_bar() + ylab("STUDENT") + theme_bw()
+```
+
+### Educational Background of Students (HSSC / A_LEVEL)
+
+```{r, echo=FALSE}
+suppressWarnings(edu2_detail <- KARACHI_data %>% group_by(HIGHER_SECONDARY) %>% summarise(Student_Count = n()))
+knitr::kable(edu2_detail)
+KARACHI_data %>% ggplot(aes(HIGHER_SECONDARY, fill = HIGHER_SECONDARY)) + geom_bar() + ylab("STUDENT") + theme_bw()
+```
+
+### ISLAMABAD Campus
+
+```{r, echo=FALSE}
+ISLAMABAD_data <- data %>% filter(grepl("ISB", CAMPUS))
+```
+
+### Total Students enrolled in Each Degree Program
+
+```{r, echo=FALSE}
+print(paste("Total Degree Programs offered in ISLAMABAD Campus: ", length(unique(ISLAMABAD_data$PROG_CODE))))
+prog_detail <- ISLAMABAD_data %>% group_by(PROG_CODE) %>% summarise(Student_Count = n()) 
+knitr::kable(prog_detail)
+ISLAMABAD_data %>% ggplot(aes(PROG_CODE, fill = PROG_CODE)) + geom_bar() + ylab("STUDENT") + theme_bw() + theme(axis.text.x = element_text(size=6))
+```
+
+### Total Male & Female Students
+
+```{r, echo=FALSE}
+print(paste("Total Students enrolled in ISLAMABAD Campus: ", nrow(ISLAMABAD_data)))
+gender_detail <- ISLAMABAD_data %>% group_by(GENDER) %>% summarise(Student_Count = n()) 
+knitr::kable(gender_detail)
+ISLAMABAD_data %>% ggplot(aes(GENDER, fill = GENDER)) + geom_bar() + ylab("STUDENT") + theme_bw()
+```
+
+### Status of Students
+
+```{r, echo=FALSE}
+print(paste("Unique Statuses: ", length(unique(ISLAMABAD_data$STATUS))))
+status_detail <- ISLAMABAD_data %>% group_by(STATUS) %>% summarise(Student_Count = n()) 
+knitr::kable(status_detail)
+ISLAMABAD_data %>% ggplot(aes(STATUS, fill = STATUS)) + geom_bar() + ylab("STUDENT") + theme_bw()
+```
+
+### Status of Students wrt their Graduation Year
+
+```{r, echo=FALSE}
+
+ISLAMABAD_data %>% filter(grepl("Fall", LAST_SEM), !grepl("Current", STATUS)) %>% ggplot(aes(STATUS, fill = STATUS)) + geom_bar() + ylab("STUDENT") + ggtitle("Status of Students - Fall Semesters") + theme_bw() + facet_wrap(~LAST_SEM, ncol = 5) + theme(axis.text.x = element_text(size=8, angle=90, hjust=.5, vjust=.5))
+
+ISLAMABAD_data %>% filter(grepl("Spring", LAST_SEM), !grepl("Current", STATUS)) %>% ggplot(aes(STATUS, fill = STATUS)) + geom_bar() + ylab("STUDENT") + ggtitle("Status of Students - Spring Semesters") + theme_bw() + facet_wrap(~LAST_SEM, ncol = 5) + theme(axis.text.x = element_text(size=8, angle=90, hjust=.5, vjust=.5))
+
+ISLAMABAD_data %>% filter(grepl("Summer", LAST_SEM), !grepl("Current", STATUS)) %>% ggplot(aes(STATUS, fill = STATUS)) + geom_bar() + ylab("STUDENT") + ggtitle("Status of Students - Summer Semesters") + theme_bw() + facet_wrap(~LAST_SEM, ncol = 5) + theme(axis.text.x = element_text(size=8, angle=90, hjust=.5, vjust=.5))
+
+```
+
+### Students from Different Cities
+
+```{r, echo=FALSE}
+print(paste("Total Cities: ", length(unique(ISLAMABAD_data$CITY))))
+city_detail <- ISLAMABAD_data %>% group_by(CITY) %>% summarise(Student_Count = n()) %>% filter(Student_Count > 10)
+knitr::kable(city_detail)
+print(paste("Cities after threshold: ", nrow(city_detail)))
+ISLAMABAD_data %>% group_by(CITY) %>% count %>% filter(n > 10) %>% ggplot(aes(x = CITY, y = n, fill = CITY)) + geom_bar(stat = "identity") + ylab("Student") + ggtitle("No. of Students from different Citites") + theme_bw() + theme(axis.text.x = element_text(size=6, angle=90, hjust=.6, vjust=.5), legend.position = "none")
+```
+
+### Educational Background of Students (SSC / O_LEVEL)
+
+```{r, echo=FALSE}
+suppressWarnings(edu1_detail <- ISLAMABAD_data %>% group_by(SECONDARY) %>% summarise(Student_Count = n())) 
+knitr::kable(edu1_detail)
+ISLAMABAD_data %>% ggplot(aes(SECONDARY, fill = SECONDARY)) + geom_bar() + ylab("STUDENT") + theme_bw()
+```
+
+### Educational Background of Students (HSSC / A_LEVEL)
+
+```{r, echo=FALSE}
+suppressWarnings(edu2_detail <- ISLAMABAD_data %>% group_by(HIGHER_SECONDARY) %>% summarise(Student_Count = n()))
+knitr::kable(edu2_detail)
+ISLAMABAD_data %>% ggplot(aes(HIGHER_SECONDARY, fill = HIGHER_SECONDARY)) + geom_bar() + ylab("STUDENT") + theme_bw()
+```
+
+### LAHORE Campus
+
+```{r, echo=FALSE}
+LAHORE_data <- data %>% filter(grepl("LHR", CAMPUS))
+```
+
+### Total Students enrolled in Each Degree Program
+
+```{r, echo=FALSE}
+print(paste("Total Degree Programs offered in LAHORE Campus: ", length(unique(LAHORE_data$PROG_CODE))))
+prog_detail <- LAHORE_data %>% group_by(PROG_CODE) %>% summarise(Student_Count = n()) 
+knitr::kable(prog_detail)
+LAHORE_data %>% ggplot(aes(PROG_CODE, fill = PROG_CODE)) + geom_bar() + ylab("STUDENT") + theme_bw() + theme(axis.text.x = element_text(size=6))
+```
+
+### Total Male & Female Students
+
+```{r, echo=FALSE}
+print(paste("Total Students enrolled in LAHORE Campus: ", nrow(LAHORE_data)))
+gender_detail <- LAHORE_data %>% group_by(GENDER) %>% summarise(Student_Count = n()) 
+knitr::kable(gender_detail)
+LAHORE_data %>% ggplot(aes(GENDER, fill = GENDER)) + geom_bar() + ylab("STUDENT") + theme_bw()
+```
+
+### Status of Students
+
+```{r, echo=FALSE}
+print(paste("Unique Statuses: ", length(unique(LAHORE_data$STATUS))))
+status_detail <- LAHORE_data %>% group_by(STATUS) %>% summarise(Student_Count = n()) 
+knitr::kable(status_detail)
+LAHORE_data %>% ggplot(aes(STATUS, fill = STATUS)) + geom_bar() + ylab("STUDENT") + theme_bw()
+```
+
+### Status of Students wrt their Graduation Year
+
+```{r, echo=FALSE}
+
+LAHORE_data %>% filter(grepl("Fall", LAST_SEM), !grepl("Current", STATUS)) %>% ggplot(aes(STATUS, fill = STATUS)) + geom_bar() + ylab("STUDENT") + ggtitle("Status of Students - Fall Semesters") + theme_bw() + facet_wrap(~LAST_SEM, ncol = 5) + theme(axis.text.x = element_text(size=8, angle=90, hjust=.5, vjust=.5))
+
+LAHORE_data %>% filter(grepl("Spring", LAST_SEM), !grepl("Current", STATUS)) %>% ggplot(aes(STATUS, fill = STATUS)) + geom_bar() + ylab("STUDENT") + ggtitle("Status of Students - Spring Semesters") + theme_bw() + facet_wrap(~LAST_SEM, ncol = 5) + theme(axis.text.x = element_text(size=8, angle=90, hjust=.5, vjust=.5))
+
+LAHORE_data %>% filter(grepl("Summer", LAST_SEM), !grepl("Current", STATUS)) %>% ggplot(aes(STATUS, fill = STATUS)) + geom_bar() + ylab("STUDENT") + ggtitle("Status of Students - Summer Semesters") + theme_bw() + facet_wrap(~LAST_SEM, ncol = 5) + theme(axis.text.x = element_text(size=8, angle=90, hjust=.5, vjust=.5))
+
+```
+
+### Students from Different Cities
+
+```{r, echo=FALSE}
+print(paste("Total Cities: ", length(unique(LAHORE_data$CITY))))
+city_detail <- LAHORE_data %>% group_by(CITY) %>% summarise(Student_Count = n()) %>% filter(Student_Count > 10)
+knitr::kable(city_detail)
+print(paste("Cities after threshold: ", nrow(city_detail)))
+LAHORE_data %>% group_by(CITY) %>% count %>% filter(n > 10) %>% ggplot(aes(x = CITY, y = n, fill = CITY)) + geom_bar(stat = "identity") + ylab("Student") + ggtitle("No. of Students from different Citites") + theme_bw() + theme(axis.text.x = element_text(size=6, angle=90, hjust=.6, vjust=.5), legend.position = "none")
+```
+
+### Educational Background of Students (SSC / O_LEVEL)
+
+```{r, echo=FALSE}
+suppressWarnings(edu1_detail <- LAHORE_data %>% group_by(SECONDARY) %>% summarise(Student_Count = n())) 
+knitr::kable(edu1_detail)
+LAHORE_data %>% ggplot(aes(SECONDARY, fill = SECONDARY)) + geom_bar() + ylab("STUDENT") + theme_bw()
+```
+
+### Educational Background of Students (HSSC / A_LEVEL)
+
+```{r, echo=FALSE}
+suppressWarnings(edu2_detail <- LAHORE_data %>% group_by(HIGHER_SECONDARY) %>% summarise(Student_Count = n()))
+knitr::kable(edu2_detail)
+LAHORE_data %>% ggplot(aes(HIGHER_SECONDARY, fill = HIGHER_SECONDARY)) + geom_bar() + ylab("STUDENT") + theme_bw()
+```
+
+### PESHAWAR Campus
+
+```{r, echo=FALSE}
+PESHAWAR_data <- data %>% filter(grepl("PWR", CAMPUS))
+```
+
+### Total Students enrolled in Each Degree Program
+
+```{r, echo=FALSE}
+print(paste("Total Degree Programs offered in PESHAWAR Campus: ", length(unique(PESHAWAR_data$PROG_CODE))))
+prog_detail <- PESHAWAR_data %>% group_by(PROG_CODE) %>% summarise(Student_Count = n()) 
+knitr::kable(prog_detail)
+PESHAWAR_data %>% ggplot(aes(PROG_CODE, fill = PROG_CODE)) + geom_bar() + ylab("STUDENT") + theme_bw() + theme(axis.text.x = element_text(size=6))
+```
+
+### Total Male & Female Students
+
+```{r, echo=FALSE}
+print(paste("Total Students enrolled in PESHAWAR Campus: ", nrow(PESHAWAR_data)))
+gender_detail <- PESHAWAR_data %>% group_by(GENDER) %>% summarise(Student_Count = n()) 
+knitr::kable(gender_detail)
+PESHAWAR_data %>% ggplot(aes(GENDER, fill = GENDER)) + geom_bar() + ylab("STUDENT") + theme_bw()
+```
+
+### Status of Students
+
+```{r, echo=FALSE}
+print(paste("Unique Statuses: ", length(unique(PESHAWAR_data$STATUS))))
+status_detail <- PESHAWAR_data %>% group_by(STATUS) %>% summarise(Student_Count = n()) 
+knitr::kable(status_detail)
+PESHAWAR_data %>% ggplot(aes(STATUS, fill = STATUS)) + geom_bar() + ylab("STUDENT") + theme_bw()
+```
+
+### Status of Students wrt their Graduation Year
+
+```{r, echo=FALSE}
+
+PESHAWAR_data %>% filter(grepl("Fall", LAST_SEM), !grepl("Current", STATUS)) %>% ggplot(aes(STATUS, fill = STATUS)) + geom_bar() + ylab("STUDENT") + ggtitle("Status of Students - Fall Semesters") + theme_bw() + facet_wrap(~LAST_SEM, ncol = 5) + theme(axis.text.x = element_text(size=8, angle=90, hjust=.5, vjust=.5))
+
+PESHAWAR_data %>% filter(grepl("Spring", LAST_SEM), !grepl("Current", STATUS)) %>% ggplot(aes(STATUS, fill = STATUS)) + geom_bar() + ylab("STUDENT") + ggtitle("Status of Students - Spring Semesters") + theme_bw() + facet_wrap(~LAST_SEM, ncol = 5) + theme(axis.text.x = element_text(size=8, angle=90, hjust=.5, vjust=.5))
+
+PESHAWAR_data %>% filter(grepl("Summer", LAST_SEM), !grepl("Current", STATUS)) %>% ggplot(aes(STATUS, fill = STATUS)) + geom_bar() + ylab("STUDENT") + ggtitle("Status of Students - Summer Semesters") + theme_bw() + facet_wrap(~LAST_SEM, ncol = 5) + theme(axis.text.x = element_text(size=8, angle=90, hjust=.5, vjust=.5))
+
+```
+
+### Students from Different Cities
+
+```{r, echo=FALSE}
+print(paste("Total Cities: ", length(unique(PESHAWAR_data$CITY))))
+city_detail <- PESHAWAR_data %>% group_by(CITY) %>% summarise(Student_Count = n()) %>% filter(Student_Count > 10)
+knitr::kable(city_detail)
+print(paste("Cities after threshold: ", nrow(city_detail)))
+PESHAWAR_data %>% group_by(CITY) %>% count %>% filter(n > 10) %>% ggplot(aes(x = CITY, y = n, fill = CITY)) + geom_bar(stat = "identity") + ylab("Student") + ggtitle("No. of Students from different Citites") + theme_bw() + theme(axis.text.x = element_text(size=6, angle=90, hjust=.6, vjust=.5), legend.position = "none")
+```
+
+### Educational Background of Students (SSC / O_LEVEL)
+```{r, echo=FALSE}
+suppressWarnings(edu1_detail <- PESHAWAR_data %>% group_by(SECONDARY) %>% summarise(Student_Count = n())) 
+knitr::kable(edu1_detail)
+PESHAWAR_data %>% ggplot(aes(SECONDARY, fill = SECONDARY)) + geom_bar() + ylab("STUDENT") + theme_bw()
+```
+
+### Educational Background of Students (HSSC / A_LEVEL)
+```{r, echo=FALSE}
+suppressWarnings(edu2_detail <- PESHAWAR_data %>% group_by(HIGHER_SECONDARY) %>% summarise(Student_Count = n()))
+knitr::kable(edu2_detail)
+PESHAWAR_data %>% ggplot(aes(HIGHER_SECONDARY, fill = HIGHER_SECONDARY)) + geom_bar() + ylab("STUDENT") + theme_bw()
+```
+
+### FAISALABAD Campus
+
+```{r, echo=FALSE}
+FAISLABAD_data <- data %>% filter(grepl("FSD", CAMPUS))
+```
+
+### Total Students enrolled in Each Degree Program
+
+```{r, echo=FALSE}
+print(paste("Total Degree Programs offered in FAISALABAD Campus: ", length(unique(FAISLABAD_data$PROG_CODE))))
+prog_detail <- FAISLABAD_data %>% group_by(PROG_CODE) %>% summarise(Student_Count = n()) 
+knitr::kable(prog_detail)
+FAISLABAD_data %>% ggplot(aes(PROG_CODE, fill = PROG_CODE)) + geom_bar() + ylab("STUDENT") + theme_bw() + theme(axis.text.x = element_text(size=6)) 
+```
+
+### Total Male & Female Students
+
+```{r, echo=FALSE}
+print(paste("Total Students enrolled in FAISALABAD Campus: ", nrow(FAISLABAD_data)))
+gender_detail <- FAISLABAD_data %>% group_by(GENDER) %>% summarise(Student_Count = n()) 
+knitr::kable(gender_detail)
+FAISLABAD_data %>% ggplot(aes(GENDER, fill = GENDER)) + geom_bar() + ylab("STUDENT") + theme_bw()
+```
+
+### Status of Students
+
+```{r, echo=FALSE}
+print(paste("Unique Statuses: ", length(unique(FAISLABAD_data$STATUS))))
+status_detail <- FAISLABAD_data %>% group_by(STATUS) %>% summarise(Student_Count = n()) 
+knitr::kable(status_detail)
+FAISLABAD_data %>% ggplot(aes(STATUS, fill = STATUS)) + geom_bar() + ylab("STUDENT") + theme_bw()
+```
+
+### Status of Students wrt their Graduation Year
+
+```{r, echo=FALSE}
+
+FAISLABAD_data %>% filter(grepl("Fall", LAST_SEM), !grepl("Current", STATUS)) %>% ggplot(aes(STATUS, fill = STATUS)) + geom_bar() + ylab("STUDENT") + ggtitle("Status of Students - Fall Semesters") + theme_bw() + facet_wrap(~LAST_SEM, ncol = 5) + theme(axis.text.x = element_text(size=8, angle=90, hjust=.5, vjust=.5))
+
+FAISLABAD_data %>% filter(grepl("Spring", LAST_SEM), !grepl("Current", STATUS)) %>% ggplot(aes(STATUS, fill = STATUS)) + geom_bar() + ylab("STUDENT") + ggtitle("Status of Students - Spring Semesters") + theme_bw() + facet_wrap(~LAST_SEM, ncol = 5) + theme(axis.text.x = element_text(size=8, angle=90, hjust=.5, vjust=.5))
+
+FAISLABAD_data %>% filter(grepl("Summer", LAST_SEM), !grepl("Current", STATUS)) %>% ggplot(aes(STATUS, fill = STATUS)) + geom_bar() + ylab("STUDENT") + ggtitle("Status of Students - Summer Semesters") + theme_bw() + facet_wrap(~LAST_SEM, ncol = 5) + theme(axis.text.x = element_text(size=8, angle=90, hjust=.5, vjust=.5))
+
+```
+
+### Students from Different Cities
+
+```{r, echo=FALSE}
+print(paste("Total Cities: ", length(unique(FAISLABAD_data$CITY))))
+city_detail <- FAISLABAD_data %>% group_by(CITY) %>% summarise(Student_Count = n()) %>% filter(Student_Count > 10)
+knitr::kable(city_detail)
+print(paste("Cities after threshold: ", nrow(city_detail)))
+FAISLABAD_data %>% group_by(CITY) %>% count %>% filter(n > 10) %>% ggplot(aes(x = CITY, y = n, fill = CITY)) + geom_bar(stat = "identity") + ylab("Student") + ggtitle("No. of Students from different Citites") + theme_bw() + theme(axis.text.x = element_text(size=6, angle=90, hjust=.6, vjust=.5), legend.position = "none")
+```
+
+### Educational Background of Students (SSC / O_LEVEL)
+```{r, echo=FALSE}
+suppressWarnings(edu1_detail <- FAISLABAD_data %>% group_by(SECONDARY) %>% summarise(Student_Count = n())) 
+knitr::kable(edu1_detail)
+FAISLABAD_data %>% ggplot(aes(SECONDARY, fill = SECONDARY)) + geom_bar() + ylab("STUDENT") + theme_bw()
+```
+
+### Educational Background of Students (HSSC / A_LEVEL)
+```{r, echo=FALSE}
+suppressWarnings(edu2_detail <- FAISLABAD_data %>% group_by(HIGHER_SECONDARY) %>% summarise(Student_Count = n()))
+knitr::kable(edu2_detail)
+FAISLABAD_data %>% ggplot(aes(HIGHER_SECONDARY, fill = HIGHER_SECONDARY)) + geom_bar() + ylab("STUDENT") + theme_bw()
+```
