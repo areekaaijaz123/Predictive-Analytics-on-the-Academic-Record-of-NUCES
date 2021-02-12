@@ -12,7 +12,7 @@ R language was used to perform all the work related to data analytics.
 ## Software Tools
 For the data cleaning , transformation and EDA , R studio was used . 
 
-# Dataset Description
+## Dataset Description
 ● The data used for our project was provided by FAST NUCES for all the FIVE campuses of NUCES i-e Faisalabad , Islamabad , Karachi , Lahore and Peshawar.
 
 ● The data contained academic records of undergraduate level (Bachelors) students for the past 19 years from Fall 2001 to Summer 2019 .
