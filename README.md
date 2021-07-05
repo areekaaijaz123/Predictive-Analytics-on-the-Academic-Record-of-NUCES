@@ -29,4 +29,6 @@ elective course count . Information about each semester of a particular student 
 Course Data 1 & Course Data 2: Both these datasets had the same columns: semester , student id , code , title , credit hours , course type , relation id , grade , grade point . 
 The data of each student was given in several rows to cover all his/her courses.
 
-![Alt text](C:/Users/Areeka Aijaz/Desktop/Project/GUI.PNG?raw=true "Title")
+![Alt text](https://github.com/areekaaijaz123/Predictive-Analytics-on-the-Academic-Record-of-NUCES/blob/main/GUI1.PNG?raw=true "Title")
+
+![Alt text](https://github.com/areekaaijaz123/Predictive-Analytics-on-the-Academic-Record-of-NUCES/blob/main/GUI2.PNG?raw=true "Title")
