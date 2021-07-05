@@ -8,9 +8,11 @@ academic record of NUCES to make insights and find out correlations between diff
 
 ## Programming language
 R language was used to perform all the work related to data analytics.
+Python was used for model building and predictive modeling.
 
 ## Software Tools
 For the data cleaning , transformation and EDA , R studio was used . 
+GUI was designed using Tkinter.
 
 ## Dataset Description
 ● The data used for our project was provided by FAST NUCES for all the FIVE campuses of NUCES i-e Faisalabad , Islamabad , Karachi , Lahore and Peshawar.
