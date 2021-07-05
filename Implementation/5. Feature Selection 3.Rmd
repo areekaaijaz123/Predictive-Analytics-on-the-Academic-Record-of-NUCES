@@ -1,0 +1,140 @@
+---
+title: "Feature Selection"
+author: "Areeka Aijaz"
+date: "5/10/2021"
+output: html_document
+---
+
+Related Articles:  
+1. https://www.machinelearningplus.com/machine-learning/feature-selection/#6recursivefeatureeliminationrfe
+2. https://machinelearningmastery.com/feature-selection-with-the-caret-r-package/
+3. http://topepo.github.io/caret/train-models-by-tag.html#feature-extraction
+
+```{r including external files, echo=FALSE, message=FALSE}
+library(plyr)
+library(dplyr)
+library(ggplot2)
+library(superml)
+library(mlbench)
+library(caret)
+
+setwd("E:\\FYP\\FYP-1 (Part 2)\\Implementation")
+
+```
+
+```{r, echo=FALSE}
+
+data <- read.csv("..\\..\\Final Data\\Training_Data.csv")
+
+summary(data)
+
+data$SCHOOL <- as.character(data$SCHOOL)
+data$COLLEGE <- as.character(data$COLLEGE)
+
+```
+
+### Label Encoding
+
+```{r, echo=FALSE}
+label <- LabelEncoder$new()
+
+data$GENDER <- label$fit_transform(data$GENDER)       
+gender <- data.frame(Encoded = unique(data$GENDER), Actual = unique(label$inverse_transform(data$GENDER)))
+
+data$BATCH <- label$fit_transform(data$BATCH)
+batch <- data.frame(Encoded = unique(data$BATCH), Actual= unique(label$inverse_transform(data$BATCH)))
+
+data$CAMPUS <- label$fit_transform(data$CAMPUS) 
+campus <- data.frame(Encoded = unique(data$CAMPUS), Actual = unique(label$inverse_transform(data$CAMPUS)))
+
+data$PROG_CODE <- label$fit_transform(data$PROG_CODE) 
+prog <- data.frame(Encoded = unique(data$PROG_CODE), Actual = unique(label$inverse_transform(data$PROG_CODE)))
+
+data$FIRST_SEM <- label$fit_transform(data$FIRST_SEM)
+first <- data.frame(Encoded = unique(data$FIRST_SEM), Actual = unique(label$inverse_transform(data$FIRST_SEM)))
+
+data$LAST_SEM <- label$fit_transform(data$LAST_SEM)
+last <- data.frame(Encoded = unique(data$LAST_SEM), Actual = unique(label$inverse_transform(data$LAST_SEM)))
+ 
+data$CITY <- label$fit_transform(data$CITY)
+city <- data.frame(Encoded = unique(data$CITY), Actual = unique(label$inverse_transform(data$CITY)))
+
+data$SECONDARY <- label$fit_transform(data$SECONDARY)
+secondary <- data.frame(Encoded = unique(data$SECONDARY), Actual = unique(label$inverse_transform(data$SECONDARY)))
+
+data$SCHOOL <- label$fit_transform(data$SCHOOL)
+school <- data.frame(Encoded = unique(data$SCHOOL), Actual = unique(label$inverse_transform(data$SCHOOL)))
+
+data$HIGHER_SECONDARY <- label$fit_transform(data$HIGHER_SECONDARY)
+hsecondary <- data.frame(Encoded = unique(data$HIGHER_SECONDARY), 
+                         Actual = unique(label$inverse_transform(data$HIGHER_SECONDARY)))
+
+data$COLLEGE <- label$fit_transform(data$COLLEGE)
+college <- data.frame(Encoded = unique(data$COLLEGE), Actual = unique(label$inverse_transform(data$COLLEGE)))
+
+head(data)
+```
+
+### 1. Step-wise Forward and Backward Feature Selection
+
+Step-wise regression is a method to select most relevant features by using the combination of both, the Backward and the Forward feature selection.
+
+It searches for the best possible regression model by iteratively selecting and dropping variables to arrive at a model with the lowest possible AIC.
+
+```{r, echo=FALSE}
+X = data[ , c(2, 3, 4, 5, 6, 7, 8, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31)]
+
+# Step 1: Define base intercept only model
+base_model <- lm(CGPA ~ 1 , data=X) 
+
+# Step 2: Full model with all predictors
+all_model <- lm(CGPA ~ ., data=X)
+
+# Step 3: Perform step-wise algorithm. direction='both' implies both forward and backward stepwise
+stepMod <- step(base_model, scope = list(lower = base_model, upper = all_model), 
+                direction = "both", trace = 0, steps = 1000)  
+
+# Step 4: Get the shortlisted variable.
+shortlistedVars <- names(unlist(stepMod[[1]])) 
+shortlistedVars <- shortlistedVars[!shortlistedVars %in% "(Intercept)"] # remove intercept
+print(shortlistedVars)
+
+```
+
+### 2. Rank Features Importance
+
+Here features are ranked using 3-times-10-Fold cross validation. The model is built using 'lmStepAIC', which is used for regression problems.
+
+```{r, echo=FALSE}
+
+control <- trainControl(method="repeatedcv", number=10, repeats=3)
+model <- train(CGPA~., data=X, method="lmStepAIC", preProcess="scale", trControl=control)
+importance <- varImp(model, scale=FALSE)
+plot(importance)
+
+```
+
+### 3. Recursive Feature Elimination
+
+RFE is a way to identify important variables before feeding them into a model.
+
+Here Random Forest based 'rfFuncs' is used. The method used is 'repeatedcv' with 3-Folds cross validation repeated 3 times.
+
+```{r, echo=FALSE}
+
+set.seed(90)
+options(warn=-1)
+
+# define the control using a random forest selection function
+ctrl <- rfeControl(functions = rfFuncs,
+                   method = "repeatedcv",
+                   number = 3,
+                   repeats = 3,
+                   verbose = TRUE)
+
+lmProfile <- rfe(x=X[, 1:21], y=data$CGPA, sizes = c(1:5, 10), rfeControl = ctrl)
+
+print(lmProfile)
+
+```
+
