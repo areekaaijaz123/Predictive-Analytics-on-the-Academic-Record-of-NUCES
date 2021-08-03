@@ -14,21 +14,6 @@ Python was used for model building and predictive modeling.
 For the data cleaning , transformation and EDA , R studio was used . 
 GUI was designed using Tkinter.
 
-## Dataset Description
-● The data used for our project was provided by FAST NUCES for all the FIVE campuses of NUCES i-e Faisalabad , Islamabad , Karachi , Lahore and Peshawar.
-
-● The data contained academic records of undergraduate level (Bachelors) students for the past 19 years from Fall 2001 to Summer 2019 .
-
-● The dataset provided was given in four separate excel sheets Student Data , Semester Data , Course Data 1 , Course Data 2 .
-
-Student Data : Contained details about student gender , batch , campus , program code , CGPA , first semester , last semester , city , SSC Board , SSC obtained etc.
-
-Semester Data: Contained academic details of students for each semester throughout the graduation cycle. The attributes included semester , sgpa , cgpa , core course count , 
-elective course count . Information about each semester of a particular student was given row wise.
-
-Course Data 1 & Course Data 2: Both these datasets had the same columns: semester , student id , code , title , credit hours , course type , relation id , grade , grade point . 
-The data of each student was given in several rows to cover all his/her courses.
-
 ## Dashboard  
 
 ![Alt text](https://github.com/areekaaijaz123/Predictive-Analytics-on-the-Academic-Record-of-NUCES/blob/main/GUI1.PNG?raw=true "Title")
